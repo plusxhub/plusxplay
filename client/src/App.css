@@ -1,0 +1,10 @@
+/* .App { */
+/**/
+/* } */
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
