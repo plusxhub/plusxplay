@@ -19,15 +19,12 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		"/url",
 		handlers.GetAuthURLHandler(
 			s.OauthConf,
-			models.Config.API.OAuthState,
 		),
 	)
 	authRouter.Get("/callback",
 		handlers.CallbackHandler(
-			models.Config.API.JWTSecretKey,
 			s.Queries,
 			s.OauthConf,
-			models.Config.API.OAuthState,
 		),
 	)
 	authRouter.Get("/is-authenticated",

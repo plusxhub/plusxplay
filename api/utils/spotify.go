@@ -83,7 +83,7 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 	}, nil
 }
 
-func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.Context) (*db.SpotifyToken, error) {
+func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.Context, w http.ResponseWriter) (*db.SpotifyToken, error) {
 
 		token, err := queries.GetSpotifyToken(
 			ctx, spotifyId,
@@ -109,6 +109,11 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 			if err != nil {
 				return nil, err
 			}
+      
+      err = SetJWTOnCookie(token.SpotifyUserID, token.ExpiresAt.UTC(), time.Now().UTC(), w)
+      if err != nil {
+        return nil, err
+      }
 		}
 
   return &token, nil

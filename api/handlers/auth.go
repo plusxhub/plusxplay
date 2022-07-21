@@ -5,18 +5,17 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
 	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
 	"golang.org/x/oauth2"
 )
 
-func GetAuthURLHandler(oauthConf *oauth2.Config, oAuthState string) http.HandlerFunc {
+func GetAuthURLHandler(oauthConf *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var resp map[string]interface{} = make(map[string]interface{})
-		base_url := oauthConf.AuthCodeURL(oAuthState)
+		base_url := oauthConf.AuthCodeURL(models.Config.API.OAuthState)
 		req, err := http.NewRequest("GET", base_url, nil)
 		if err != nil {
 			resp["error"] = err.Error()
@@ -31,11 +30,11 @@ func GetAuthURLHandler(oauthConf *oauth2.Config, oAuthState string) http.Handler
 	}
 }
 
-func CallbackHandler(jwtSecretKey string, queries *db.Queries, oauthConf *oauth2.Config, oAuthState string) http.HandlerFunc {
+func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var resp map[string]interface{} = make(map[string]interface{})
 		state := r.FormValue("state")
-		if state != oAuthState {
+		if state != models.Config.API.OAuthState {
 			resp["error"] = "Invalid state"
 			utils.JSON(w, http.StatusBadRequest, resp)
 			return
@@ -95,28 +94,35 @@ func CallbackHandler(jwtSecretKey string, queries *db.Queries, oauthConf *oauth2
 			return
 		}
 
-		jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"spotify_id": user.SpotifyID,
-			"exp":        token.ExpiresAt.Unix(),
-			"iat":        now.Unix(),
-		})
+		// jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		// 	"spotify_id": user.SpotifyID,
+		// 	"exp":        token.ExpiresAt.Unix(),
+		// 	"iat":        now.Unix(),
+		// })
+		//
+		// signedToken, err := jwtToken.SignedString([]byte(models.Config.API.JWTSecretKey))
+		// if err != nil {
+		// 	resp["error"] = err.Error()
+		// 	utils.JSON(w, http.StatusInternalServerError, resp)
+		// 	return
+		// }
+		//
+		// http.SetCookie(w, &http.Cookie{
+		// 	Name:     "token",
+		// 	Value:    signedToken,
+		// 	Path:     "/",
+		// 	Expires:  time.Now().UTC().Add(time.Hour * 24 * 7),
+		// 	Secure:   false,
+		// 	HttpOnly: true,
+		// 	SameSite: http.SameSiteLaxMode,
+		// })
 
-		signedToken, err := jwtToken.SignedString([]byte(jwtSecretKey))
-		if err != nil {
-			resp["error"] = err.Error()
-			utils.JSON(w, http.StatusInternalServerError, resp)
-			return
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "token",
-			Value:    signedToken,
-			Path:     "/",
-			Expires:  time.Now().UTC().Add(time.Hour * 24 * 7),
-			Secure:   false,
-			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-		})
+    err = utils.SetJWTOnCookie(user.SpotifyID, token.ExpiresAt.UTC(), now, w)
+    if err != nil {
+      resp["error"] = err.Error()
+      utils.JSON(w, http.StatusInternalServerError, resp)
+      return
+    }
 
 		http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
 	}
@@ -140,7 +146,7 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
-		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken.Value, models.Config.API.JWTSecretKey)
+		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken.Value)
 
 		if errMsg != "" {
 			resp["error"] = errMsg
@@ -148,7 +154,7 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
-    _, err = utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context())
+    _, err = utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context(), w)
     if err != nil {
       resp["error"] = err.Error()
       resp["is_authenticated"] = false
