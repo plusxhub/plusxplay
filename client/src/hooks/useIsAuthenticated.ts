@@ -1,25 +1,23 @@
 import axios from 'axios'
+import { useEffect, useState } from 'react';
 
 const useIsAuthenticated = () => {
-  async function checkIsAuthenticated() {
-    console.log("in da hook")
-    let isAuthenticated = false
-    await axios
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  useEffect(() => {
+    axios
       .get('/api/auth/is-authenticated', {
       })
       .then(({ data }) => {
-        console.log(data)
         if (data.is_authenticated) {
-          console.log("Are we here?")
-          isAuthenticated = true
+          setIsAuthenticated(true)
         }
       })
       .catch((err) => {
         console.log(err)
-      })
+    })
+  }, [])
 
-    return isAuthenticated
-  }
+  return isAuthenticated
 }
 
 export default useIsAuthenticated

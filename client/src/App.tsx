@@ -4,14 +4,14 @@ import React from 'react'
 import { Route, Routes, Link } from 'react-router-dom'
 
 // TODO: Lazy load pages
-import Home from './pages/Home'
-import PlaylistSubmission from './pages/PlaylistSubmission'
+import Home from './pages/Home/Home'
+import Submission from './pages/Submission/Submission'
 
 const App: React.FC = (): JSX.Element => {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='/submit' element={<PlaylistSubmission />} />
+      <Route path='/submit' element={<Submission />} />
       <Route
         path='*'
         element={

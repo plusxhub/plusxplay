@@ -1,16 +1,13 @@
 import { Button, Center, Container, Heading } from '@chakra-ui/react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Link } from 'react-router-dom'
-import LoginButton from '../components/LoginButton'
+import LoginButton from '../../components/LoginButton'
 
-import '../App.css'
-import useIsAuthenticated from '../hooks/useIsAuthenticated'
+import useIsAuthenticated from '../../hooks/useIsAuthenticated'
 
 const Home: React.FC = (): JSX.Element => {
-
   const isAuthenticated = useIsAuthenticated()
-  console.log(isAuthenticated)
 
   return (
     <div style={{ minHeight: '100vh', margin: '0' }}>

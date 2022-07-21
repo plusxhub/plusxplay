@@ -5,7 +5,7 @@ import spotify_logo from '../../assets/spotify.svg'
 import { useEffect } from 'react'
 import LoginButtonProps from '../types/LoginButton'
 
-function LoginButton({ isAuthenticated }: LoginButtonProps): JSX.Element {
+const LoginButton: React.FC<LoginButtonProps> = ({ isAuthenticated }: LoginButtonProps) => {
   const navigate = useNavigate()
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-export default interface ISearchResult {
-  id: number
+export default interface ISong {
+  id: string
   name: string
   artists: Artist[]
   release_date: string
