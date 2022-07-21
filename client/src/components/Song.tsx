@@ -107,10 +107,9 @@ const Song: React.FC<SongProps> = ({
               />
             </FormControl>
             <Box>
-              <UnorderedList>
                 {searchResults
                   ? searchResults.map((song) => (
-                      <ListItem key={song.id} marginY={'10px'}>
+                      <Box minWidth="100%">
                         <button
                           onClick={() => {
                             addSelectedSong(choice, song)
@@ -127,11 +126,9 @@ const Song: React.FC<SongProps> = ({
                             preview_url={song.preview_url}
                           />
                         </button>
-                        {song.name}
-                      </ListItem>
+                      </Box>
                     ))
                   : 'No Search Results Found.'}
-              </UnorderedList>
             </Box>
           </ModalBody>
           <ModalFooter>

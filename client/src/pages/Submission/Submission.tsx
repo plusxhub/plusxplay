@@ -1,19 +1,17 @@
 import {
-  Box,
-  Center,
   Container,
   Flex,
   Grid,
   GridItem,
-  Heading,
-  Text,
 } from '@chakra-ui/react'
 import Song from '../../components/Song'
 import ISong from '../../types/SearchResults'
 import useChoices from '../../store/store'
+import useIsAuthenticated from '../../hooks/useIsAuthenticated'
 
 const PlaylistSubmission: React.FC = (): JSX.Element => {
   const selectedSongs = useChoices((state) => state.selectedSongs)
+  useIsAuthenticated()
 
   return (
     <Flex style={{ minHeight: '100vh', margin: '0' }} justifyContent='center'>
@@ -33,9 +31,8 @@ const PlaylistSubmission: React.FC = (): JSX.Element => {
         >
           {selectedSongs.map((item: ISong | null, index: number) => {
             return (
-              <GridItem width={'100%'}>
+              <GridItem key={index} width={'100%'}>
                   <Song
-                    key={index}
                     song={item}
                     choice={index}
                   />

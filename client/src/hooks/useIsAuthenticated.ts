@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 
 const useIsAuthenticated = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // TODO: If not authenticated, navigate to home.
+  
   useEffect(() => {
     axios
       .get('/api/auth/is-authenticated', {
