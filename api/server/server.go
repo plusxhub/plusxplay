@@ -21,8 +21,8 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
+
 type Server struct {
-	Config    *models.Config
 	Router    *chi.Mux
 	Queries   *db.Queries
 	DB        *sql.DB
@@ -31,11 +31,11 @@ type Server struct {
 
 func New() *Server {
 	s := &Server{}
-	config, err := utils.LoadConfig("./configs", "config", "yml")
+	configFromFile, err := utils.LoadConfig("./configs", "config", "yml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Config = config
+	models.Config = *configFromFile
 
 	if err := s.PrepareDB(); err != nil {
 		log.Fatal(err.Error())
@@ -47,7 +47,7 @@ func New() *Server {
 }
 func (s *Server) PrepareDB() error {
 	tries := 5
-	DB, err := sql.Open("pgx", s.Config.Database.URI())
+	DB, err := sql.Open("pgx", models.Config.Database.URI())
 	if err != nil {
 		return nil
 	}
@@ -87,9 +87,9 @@ func (s *Server) PrepareRouter() {
 
 func (s *Server) PrepareOauth2() {
 	s.OauthConf = &oauth2.Config{
-		RedirectURL:  s.Config.Spotify.RedirectURI,
-		ClientID:     s.Config.Spotify.ClientID,
-		ClientSecret: s.Config.Spotify.ClientSecret,
+		RedirectURL:  models.Config.Spotify.RedirectURI,
+		ClientID:     models.Config.Spotify.ClientID,
+		ClientSecret: models.Config.Spotify.ClientSecret,
 		Scopes:       []string{"user-read-private"},
 		Endpoint:     spotifyOauth.Endpoint,
 	}
@@ -101,8 +101,8 @@ func (s *Server) RunServer() (err error) {
 	s.HandleRoutes(apiRouter)
 	s.Router.Mount("/api", apiRouter)
 
-	log.Printf("Starting Server at %s:%s", s.Config.API.Host, s.Config.API.Port)
-	err = http.ListenAndServe(fmt.Sprintf("%s:%s", s.Config.API.Host, s.Config.API.Port), s.Router)
+	log.Printf("Starting Server at %s:%s", models.Config.API.Host, models.Config.API.Port)
+	err = http.ListenAndServe(fmt.Sprintf("%s:%s", models.Config.API.Host, models.Config.API.Port), s.Router)
 	if err != nil {
 		log.Fatal(err)
 	}

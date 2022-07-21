@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
+	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
 	"golang.org/x/oauth2"
 )
@@ -76,7 +75,7 @@ func CallbackHandler(jwtSecretKey string, queries *db.Queries, oauthConf *oauth2
 			return
 		}
 
-		now := time.Now()
+		now := time.Now().UTC()
 
 		token, err := queries.CreateOrUpdateSpotifyTokens(
 			r.Context(),
@@ -85,7 +84,7 @@ func CallbackHandler(jwtSecretKey string, queries *db.Queries, oauthConf *oauth2
 				CreatedAt:     now,
 				RefreshToken:  spotifyTokens.RefreshToken,
 				AccessToken:   spotifyTokens.AccessToken,
-				ExpiresAt:     spotifyTokens.Expiry,
+				ExpiresAt:     spotifyTokens.Expiry.UTC(),
 				TokenType:     spotifyTokens.TokenType,
 			},
 		)
@@ -113,19 +112,17 @@ func CallbackHandler(jwtSecretKey string, queries *db.Queries, oauthConf *oauth2
 			Name:     "token",
 			Value:    signedToken,
 			Path:     "/",
-			Expires:  token.ExpiresAt,
+			Expires:  time.Now().UTC().Add(time.Hour * 24 * 7),
 			Secure:   false,
 			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
 		})
 
-		redirectUrl := fmt.Sprintf("http://localhost:3000?expiry=%d&token=%s", token.ExpiresAt.Unix(), signedToken)
-
-		http.Redirect(w, r, redirectUrl, http.StatusSeeOther)
+		http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
 	}
 }
 
-func IsAuthenticatedHandler(clientId, clientSecret, jwtSecretKey string, queries *db.Queries) http.HandlerFunc {
+func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var resp map[string]interface{} = make(map[string]interface{})
 		jwtToken, err := r.Cookie("token")
@@ -143,7 +140,7 @@ func IsAuthenticatedHandler(clientId, clientSecret, jwtSecretKey string, queries
 			return
 		}
 
-		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken.Value, jwtSecretKey)
+		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken.Value, models.Config.API.JWTSecretKey)
 
 		if errMsg != "" {
 			resp["error"] = errMsg
@@ -151,89 +148,14 @@ func IsAuthenticatedHandler(clientId, clientSecret, jwtSecretKey string, queries
 			return
 		}
 
-		token, err := queries.GetSpotifyToken(
-			r.Context(),
-			spotifyId,
-		)
-		if errors.Is(err, sql.ErrNoRows) {
-			resp["is_authenticated"] = false
-			utils.JSON(w, http.StatusUnauthorized, resp)
-			return
-		}
-		if err != nil {
-			resp["error"] = err.Error()
-			utils.JSON(w, http.StatusInternalServerError, resp)
-			return
-		}
+    _, err = utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context())
+    if err != nil {
+      resp["error"] = err.Error()
+      resp["is_authenticated"] = false
+      utils.JSON(w, http.StatusUnauthorized, resp)
+      return
+    }
 
-		if time.Now().After(token.ExpiresAt) {
-			updateParams, err := utils.RefreshSpotifyToken(token.RefreshToken, clientId, clientSecret)
-			if err != nil {
-				resp["error"] = err.Error()
-				utils.JSON(w, http.StatusInternalServerError, resp)
-				return
-			}
-			updateParams.SpotifyUserID = spotifyId
-			_, err = queries.CreateOrUpdateSpotifyTokens(
-				r.Context(),
-				*updateParams,
-			)
-			if err != nil {
-				resp["error"] = err.Error()
-				utils.JSON(w, http.StatusInternalServerError, resp)
-				return
-			}
-		}
-		resp["is_authenticated"] = true
-		utils.JSON(w, http.StatusOK, resp)
-	}
-}
-
-func IsAuthenticatedHandler_old(clientId, clientSecret, jwtSecretKey string, queries *db.Queries) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var resp map[string]interface{} = make(map[string]interface{})
-		jwtToken := r.Header.Get("Token")
-		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken, jwtSecretKey)
-
-		if errMsg != "" {
-			resp["error"] = errMsg
-			utils.JSON(w, status, resp)
-			return
-		}
-
-		token, err := queries.GetSpotifyToken(
-			r.Context(),
-			spotifyId,
-		)
-		if errors.Is(err, sql.ErrNoRows) {
-			resp["is_authenticated"] = false
-			utils.JSON(w, http.StatusUnauthorized, resp)
-			return
-		}
-		if err != nil {
-			resp["error"] = err.Error()
-			utils.JSON(w, http.StatusInternalServerError, resp)
-			return
-		}
-
-		if time.Now().After(token.ExpiresAt) {
-			updateParams, err := utils.RefreshSpotifyToken(token.RefreshToken, clientId, clientSecret)
-			if err != nil {
-				resp["error"] = err.Error()
-				utils.JSON(w, http.StatusInternalServerError, resp)
-				return
-			}
-			updateParams.SpotifyUserID = spotifyId
-			_, err = queries.CreateOrUpdateSpotifyTokens(
-				r.Context(),
-				*updateParams,
-			)
-			if err != nil {
-				resp["error"] = err.Error()
-				utils.JSON(w, http.StatusInternalServerError, resp)
-				return
-			}
-		}
 		resp["is_authenticated"] = true
 		utils.JSON(w, http.StatusOK, resp)
 	}

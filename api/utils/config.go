@@ -6,7 +6,7 @@ import (
 )
 
 // Load config from viper
-func LoadConfig(path, name, config_type string) (config *models.Config, err error) {
+func LoadConfig(path, name, config_type string) (config *models.Configuration, err error) {
 
 	viper.AddConfigPath(path)
 	viper.SetConfigName(name)

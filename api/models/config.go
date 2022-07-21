@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+var Config Configuration
+
 type DatabaseConf struct {
 	Host     string `mapstructure:"host"`
 	User     string `mapstructure:"user"`
@@ -32,7 +34,7 @@ type APIConf struct {
 	ErrorWebhookUrl string   `mapstructure:"error_webhook_url"`
 }
 
-type Config struct {
+type Configuration struct {
 	API      *APIConf      `mapstructure:"api"`
 	Database *DatabaseConf `mapstructure:"database"`
 	Spotify  *SpotifyConf  `mapstructure:"spotify"`

@@ -11,19 +11,23 @@ func SpotifySearchHandler(jwt_secret_key string, queries *db.Queries) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		var resp map[string]interface{} = make(map[string]interface{})
 
-		jwtToken := r.Header.Get("Token")
+    jwtTokenCookie, err := r.Cookie("token")
 
-		spotify_id, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtToken, jwt_secret_key)
+    if err != nil {
+      resp["error"] = "No token found"
+      utils.JSON(w, http.StatusUnauthorized, resp)
+      return
+    }
+
+		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtTokenCookie.Value, jwt_secret_key)
 		if errMsg != "" {
 			resp["error"] = errMsg
 			utils.JSON(w, status, resp)
 			return
 		}
 
-		token, err := queries.GetSpotifyToken(
-			r.Context(),
-			spotify_id,
-		)
+		token, err := utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context())
+
 		if err != nil {
 			resp["error"] = "Error getting spotify token"
 			utils.JSON(w, http.StatusInternalServerError, resp)

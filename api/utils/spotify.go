@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -46,17 +49,17 @@ func ExecuteSpotifyRequest(endpoint, access_token string, resp interface{}) erro
 	return nil
 }
 
-func RefreshSpotifyToken(refresh_token, client_id, client_secret string) (*db.CreateOrUpdateSpotifyTokensParams, error) {
+func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensParams, error) {
 	reqBody := url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {refresh_token},
-		"client_id":     {client_id},
-		"client_secret": {client_secret},
-	}
+		"client_id":     {models.Config.Spotify.ClientID},
+		"client_secret": {models.Config.Spotify.ClientSecret},
 
+  }
 	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token", strings.NewReader(reqBody.Encode()))
 	if err != nil {
-		return nil, err
+    return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -72,12 +75,44 @@ func RefreshSpotifyToken(refresh_token, client_id, client_secret string) (*db.Cr
 	}
 
 	return &db.CreateOrUpdateSpotifyTokensParams{
-		CreatedAt:    time.Now(),
+		CreatedAt:    time.Now().UTC(),
 		RefreshToken: spotifyRespBody.RefreshToken,
 		AccessToken:  spotifyRespBody.AccessToken,
-		ExpiresAt:    time.Now().Add(time.Second * time.Duration(spotifyRespBody.ExpiresIn)),
+		ExpiresAt:    time.Now().UTC().Add(time.Second * time.Duration(spotifyRespBody.ExpiresIn)),
 		TokenType:    spotifyRespBody.TokenType,
 	}, nil
+}
+
+func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.Context) (*db.SpotifyToken, error) {
+
+		token, err := queries.GetSpotifyToken(
+			ctx, spotifyId,
+		)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("No such user exists.")
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		if time.Now().UTC().After(token.ExpiresAt) {
+    log.Println("Refreshing token")
+			updateParams, err := RefreshSpotifyToken(token.RefreshToken)
+			if err != nil {
+				return nil, err
+			}
+			updateParams.SpotifyUserID = spotifyId
+			token, err = queries.CreateOrUpdateSpotifyTokens(
+				ctx,
+				*updateParams,
+			)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+  return &token, nil
+
 }
 
 func SearchTracks(access_token, query string, limit int) (*[]models.SpotifyTrack, error) {

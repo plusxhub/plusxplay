@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/milindmadhukar/plusxplay/handlers"
+	"github.com/milindmadhukar/plusxplay/models"
 )
 
 // Function to handle routes
@@ -18,29 +19,25 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		"/url",
 		handlers.GetAuthURLHandler(
 			s.OauthConf,
-			s.Config.API.OAuthState,
+			models.Config.API.OAuthState,
 		),
 	)
 	authRouter.Get("/callback",
 		handlers.CallbackHandler(
-			s.Config.API.JWTSecretKey,
+			models.Config.API.JWTSecretKey,
 			s.Queries,
 			s.OauthConf,
-			s.Config.API.OAuthState,
+			models.Config.API.OAuthState,
 		),
 	)
 	authRouter.Get("/is-authenticated",
-		handlers.IsAuthenticatedHandler(
-			s.Config.Spotify.ClientID,
-			s.Config.Spotify.ClientSecret,
-			s.Config.API.JWTSecretKey,
-			s.Queries),
+		handlers.IsAuthenticatedHandler(s.Queries),
 	)
 
 	spotifyRouter := chi.NewRouter()
 	spotifyRouter.Get("/search",
 		handlers.SpotifySearchHandler(
-			s.Config.API.JWTSecretKey,
+			models.Config.API.JWTSecretKey,
 			s.Queries,
 		),
 	)
