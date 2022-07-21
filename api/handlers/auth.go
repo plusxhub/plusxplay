@@ -94,29 +94,6 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 			return
 		}
 
-		// jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		// 	"spotify_id": user.SpotifyID,
-		// 	"exp":        token.ExpiresAt.Unix(),
-		// 	"iat":        now.Unix(),
-		// })
-		//
-		// signedToken, err := jwtToken.SignedString([]byte(models.Config.API.JWTSecretKey))
-		// if err != nil {
-		// 	resp["error"] = err.Error()
-		// 	utils.JSON(w, http.StatusInternalServerError, resp)
-		// 	return
-		// }
-		//
-		// http.SetCookie(w, &http.Cookie{
-		// 	Name:     "token",
-		// 	Value:    signedToken,
-		// 	Path:     "/",
-		// 	Expires:  time.Now().UTC().Add(time.Hour * 24 * 7),
-		// 	Secure:   false,
-		// 	HttpOnly: true,
-		// 	SameSite: http.SameSiteLaxMode,
-		// })
-
     err = utils.SetJWTOnCookie(user.SpotifyID, token.ExpiresAt.UTC(), now, w)
     if err != nil {
       resp["error"] = err.Error()
@@ -124,7 +101,7 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
       return
     }
 
-		http.Redirect(w, r, "http://localhost:3000", http.StatusFound)
+		http.Redirect(w, r, models.Config.API.FrontendUrl, http.StatusFound)
 	}
 }
 

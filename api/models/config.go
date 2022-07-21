@@ -32,6 +32,7 @@ type APIConf struct {
 	OAuthState      string   `mapstructure:"oauth_state"`
 	AdminIDs        []string `mapstructure:"admin_ids"`
 	ErrorWebhookUrl string   `mapstructure:"error_webhook_url"`
+  FrontendUrl     string   `mapstructure:"frontend_url"`
 }
 
 type Configuration struct {
