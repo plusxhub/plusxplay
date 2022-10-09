@@ -73,6 +73,6 @@ func SetJWTOnCookie(spotifyUserID string, tokenExpiry, now time.Time, w http.Res
 		SameSite: http.SameSiteLaxMode,
 	})
 
-  return nil
+	return nil
 
 }

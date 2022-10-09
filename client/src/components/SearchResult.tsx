@@ -12,56 +12,60 @@ const SearchResult: React.FC<ISearchResults> = ({
   preview_url,
 }: ISearchResults) => {
   return (
-    <Box minWidth='100%'>
       <Flex
-        // maxW='md'
         bg='white'
         _dark={{
           bg: 'gray.800',
         }}
         shadow='lg'
         rounded='lg'
+        overflow='hidden'
+        marginY={'10px'}
       >
-        <Box
-          w={1 / 3}
-          bgSize='cover'
-          style={{
-            backgroundImage: `url(${image})`,
-            backgroundPosition: 'center',
-          }}
-        ></Box>
+          <Box w={1 / 3}>
+            <Image src={image} alt={name} />
+          </Box>
 
-        <Box
-          w={2 / 3}
-          p={{
-            base: 4,
-            md: 4,
-          }}
-        >
-          <chakra.h1
-            fontSize='2xl'
-            fontWeight='bold'
-            color='gray.800'
-            _dark={{
-              color: 'white',
+          <Box
+            w={2 / 3}
+            p={{
+              base: 4,
+              md: 4,
             }}
           >
-            {name}
-          </chakra.h1>
+            <chakra.h1
+              fontSize='2xl'
+              fontWeight='bold'
+              color='gray.800'
+              _dark={{
+                color: 'white',
+              }}
+            >
+              {name}
+            </chakra.h1>
 
-          <chakra.p
-            mt={2}
-            fontSize='sm'
-            color='gray.600'
-            _dark={{
-              color: 'gray.400',
-            }}
-          >
-            Release date: {release_date}
-          </chakra.p>
+            <chakra.p
+              mt={2}
+              fontSize='sm'
+              color='gray.600'
+              _dark={{
+                color: 'gray.400',
+              }}
+            >
+              {artists.map((artist) => artist.name).join(', ')}
+            </chakra.p>
+            <chakra.p
+              mt={2}
+              fontSize='sm'
+              color='gray.600'
+              _dark={{
+                color: 'gray.400',
+              }}
+            >
+              {release_date}
+            </chakra.p>
         </Box>
       </Flex>
-    </Box>
   )
 }
 

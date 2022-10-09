@@ -21,7 +21,6 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-
 type Server struct {
 	Router    *chi.Mux
 	Queries   *db.Queries
@@ -45,6 +44,7 @@ func New() *Server {
 
 	return s
 }
+
 func (s *Server) PrepareDB() error {
 	tries := 5
 	DB, err := sql.Open("pgx", models.Config.Database.URI())

@@ -28,7 +28,7 @@ import SongProps from '../types/Song'
 const Song: React.FC<SongProps> = ({
   song,
   choice = -1,
-}:SongProps) => {
+}: SongProps) => {
   const [modalValue, setModalValue] = useState('')
   const [searchResults, setSearchResults] = useState<ISong[]>([])
   const debouncedTerm = useDebouncedValue(modalValue)
@@ -69,15 +69,16 @@ const Song: React.FC<SongProps> = ({
     <>
       <Box
         bg={'gray.200'}
-        minH={'40vh'}
+        // minH={'40vh'}
+        minW={'15vw'}
         onClick={() => {
           setOverlay(<BlurOverlay />)
           onOpen()
         }}
       >
         {song ? (
-          <Center>
-            <Image src={song.image} alt={song.name} maxH={'100px'} />
+          <Center >
+            <Image src={song.image} alt={song.name} height='100%' />
           </Center>
         ) : (
           <>{choice}</>
@@ -90,8 +91,8 @@ const Song: React.FC<SongProps> = ({
         motionPreset='slideInBottom'
         scrollBehavior='inside'
         size={'xl'}
-        // initialFocusRef={initialRef}
-        // finalFocusRef={finalRef}
+      // initialFocusRef={initialRef}
+      // finalFocusRef={finalRef}
       >
         {overlay}
         <ModalContent marginX={'20px'}>
@@ -107,28 +108,25 @@ const Song: React.FC<SongProps> = ({
               />
             </FormControl>
             <Box>
-                {searchResults
-                  ? searchResults.map((song) => (
-                      <Box minWidth="100%">
-                        <button
-                          onClick={() => {
-                            addSelectedSong(choice, song)
-                            onClose()
-                          }}
-                        >
-                          <SearchResult
-                            key={song.id}
-                            id={song.id}
-                            name={song.name}
-                            artists={song.artists}
-                            release_date={song.release_date}
-                            image={song.image}
-                            preview_url={song.preview_url}
-                          />
-                        </button>
-                      </Box>
-                    ))
-                  : 'No Search Results Found.'}
+              {searchResults
+                ? searchResults.map((song) => (
+                  <Box minWidth="100%" onClick={() => {
+                    addSelectedSong(choice, song)
+                    onClose()
+                  }}
+                  >
+                    <SearchResult
+                      key={song.id}
+                      id={song.id}
+                      name={song.name}
+                      artists={song.artists}
+                      release_date={song.release_date}
+                      image={song.image}
+                      preview_url={song.preview_url}
+                    />
+                  </Box>
+                ))
+                : 'No Search Results Found.'}
             </Box>
           </ModalBody>
           <ModalFooter>

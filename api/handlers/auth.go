@@ -16,16 +16,7 @@ func GetAuthURLHandler(oauthConf *oauth2.Config) http.HandlerFunc {
 
 		var resp map[string]interface{} = make(map[string]interface{})
 		base_url := oauthConf.AuthCodeURL(models.Config.API.OAuthState)
-		req, err := http.NewRequest("GET", base_url, nil)
-		if err != nil {
-			resp["error"] = err.Error()
-			utils.JSON(w, http.StatusInternalServerError, resp)
-			return
-		}
-
-		q := req.URL.Query()
-		req.URL.RawQuery = q.Encode()
-		resp["url"] = req.URL.String()
+		resp["url"] = base_url
 		utils.JSON(w, http.StatusOK, resp)
 	}
 }

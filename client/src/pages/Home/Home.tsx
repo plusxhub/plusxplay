@@ -1,27 +1,37 @@
-import { Button, Center, Container, Heading } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import { Box, Button, Container, Flex, Heading, Image } from '@chakra-ui/react'
 
 import { Link } from 'react-router-dom'
 import LoginButton from '../../components/LoginButton'
 
 import useIsAuthenticated from '../../hooks/useIsAuthenticated'
+import plusxhub_logo from '../../../assets/plusxhub.jpg'
 
 const Home: React.FC = (): JSX.Element => {
   const isAuthenticated = useIsAuthenticated()
 
   return (
-    <div style={{ minHeight: '100vh', margin: '0' }}>
-      <Center>
+    <Flex
+      minHeight={'100vh'}
+      justifyContent='center'
+      alignItems='center'
+    >
+      <Flex
+        bg={'white'}
+        rounded={'xl'}
+        justifyContent='center'
+        alignItems='center'
+        minHeight={'85vh'}
+        width={'90vw'}
+        height={"100%"}
+      >
+
         <Container
-          bg={'white'}
-          rounded={'xl'}
-          minH='85vh'
-          maxW='90vw'
           centerContent
-          className='vertical-center'
+          minHeight={'100%'}
         >
-          <Heading marginTop={'30px'} as='h2' size='2xl'>
-            Your Mom's Playlist
+          <Image src={plusxhub_logo} height={'15vh'} marginBottom='10px' borderRadius={'lg'} />
+          <Heading as='h2' size='2xl'>
+            #PlusXPlay
           </Heading>
 
           <Heading as='h4' size='md' textAlign={'center'}>
@@ -37,8 +47,8 @@ const Home: React.FC = (): JSX.Element => {
             'Please login to submit a playlist.'
           )}
         </Container>
-      </Center>
-    </div>
+      </Flex>
+    </Flex>
   )
 }
 
