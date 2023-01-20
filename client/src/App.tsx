@@ -1,27 +1,18 @@
-import './App.css'
-
-import React from 'react'
-import { Route, Routes, Link } from 'react-router-dom'
-
-// TODO: Lazy load pages
+import { Route, Routes } from 'solid-app-router'
+import type { Component } from 'solid-js'
 import Home from './pages/Home/Home'
-import Submission from './pages/Submission/Submission'
+import Info from './pages/Info/Info'
+import Submit from './pages/Submit/Submit'
 
-const App: React.FC = (): JSX.Element => {
+const App: Component = () => {
   return (
-    <Routes>
-      <Route path='/' element={<Home />} />
-      <Route path='/submit' element={<Submission />} />
-      <Route
-        path='*'
-        element={
-          <main style={{ padding: '1rem' }}>
-            <p>There's nothing here!</p>
-            <Link to='/'>Home</Link>
-          </main>
-        }
-      />
-    </Routes>
+    <div class='bggradient min-h-[100vh]'>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/submit' element={<Submit />} />
+        <Route path='/info' element={<Info />} />
+      </Routes>
+    </div>
   )
 }
 

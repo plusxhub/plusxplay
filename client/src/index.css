@@ -1,18 +1,28 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: rgb(244,215,75) !important;
-  background: -moz-linear-gradient(90deg, rgba(244,215,75,1) 35%, rgba(255,26,23,1) 65%) !important; 
-  background: -webkit-linear-gradient(90deg, rgba(244,215,75,1) 35%, rgba(255,26,23,1) 65%) !important;
-  background: linear-gradient(90deg, rgba(244,215,75,1) 35%, rgba(255,26,23,1) 65%) !important;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f4d74b",endColorstr="#ff1a17",GradientType=1) !important;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bggradient {
+    background: linear-gradient(270deg, #ead661, #ff8208);
+    background-size: 400% 400%;
+
+    -webkit-animation: BackgroundGradient 6s ease infinite;
+    -moz-animation: BackgroundGradient 6s ease infinite;
+    animation: BackgroundGradient 6s ease infinite;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@-webkit-keyframes BackgroundGradient {
+    0%{background-position:0% 11%}
+    50%{background-position:100% 90%}
+    100%{background-position:0% 11%}
+}
+@-moz-keyframes BackgroundGradient {
+    0%{background-position:0% 11%}
+    50%{background-position:100% 90%}
+    100%{background-position:0% 11%}
+}
+@keyframes BackgroundGradient {
+    0%{background-position:0% 11%}
+    50%{background-position:100% 90%}
+    100%{background-position:0% 11%}
 }

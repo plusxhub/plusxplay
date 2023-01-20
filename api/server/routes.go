@@ -27,6 +27,11 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 			s.OauthConf,
 		),
 	)
+
+	authRouter.Get("/logout",
+		handlers.LogoutHandler(),
+	)
+
 	authRouter.Get("/is-authenticated",
 		handlers.IsAuthenticatedHandler(s.Queries),
 	)

@@ -76,3 +76,21 @@ func SetJWTOnCookie(spotifyUserID string, tokenExpiry, now time.Time, w http.Res
 	return nil
 
 }
+
+
+func GetTokenJWT(spotifyUserID string, tokenExpiry, now time.Time, w http.ResponseWriter) (string, error) {
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"spotify_id": spotifyUserID,
+		"exp":        tokenExpiry.Unix(),
+		"iat":        now.Unix(),
+	})
+
+	signedToken, err := jwtToken.SignedString([]byte(models.Config.API.JWTSecretKey))
+	if err != nil {
+		return "", err
+	}
+  
+	return signedToken, nil
+
+}

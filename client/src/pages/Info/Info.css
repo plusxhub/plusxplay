@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+.subtext {
+  font-family: 'Russo One', sans-serif;
+  line-height: 2rem;
+  margin-bottom: 0.75rem;
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
+}
+
+
+.fade-title {
+  animation-delay: 1s;
+  animation: fadeIn 0.5s forwards;
+}
+
+.playlistBtn {
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.playlistBtn:hover {
+  color: #1db954;
+  text-shadow: 0 0 5px #39ff14, 0 0 25px #39ff14, 0 0 50px #39ff14,
+    0 0 100px #39ff14;
+}
+
+.gradright {
+  background: -webkit-linear-gradient(left, #ead661, #fe1c16);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

@@ -1,6 +1,13 @@
-import ISong from "./SearchResults";
+export type Song = {
+  id: string
+  name: string
+  artists: Artist[]
+  release_date: string
+  image: string
+  preview_url: string
+}
 
-export default interface SongProps {
-  song: ISong | null
-  choice: number
+type Artist = {
+  id: number
+  name: string
 }

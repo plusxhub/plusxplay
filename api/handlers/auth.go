@@ -85,12 +85,28 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 			return
 		}
 
-    err = utils.SetJWTOnCookie(user.SpotifyID, token.ExpiresAt.UTC(), now, w)
-    if err != nil {
-      resp["error"] = err.Error()
-      utils.JSON(w, http.StatusInternalServerError, resp)
-      return
-    }
+		err = utils.SetJWTOnCookie(user.SpotifyID, token.ExpiresAt.UTC(), now, w)
+		if err != nil {
+			resp["error"] = err.Error()
+			utils.JSON(w, http.StatusInternalServerError, resp)
+			return
+		}
+
+		http.Redirect(w, r, models.Config.API.FrontendUrl, http.StatusFound)
+	}
+}
+
+func LogoutHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var resp map[string]interface{} = make(map[string]interface{})
+
+		err := utils.SetJWTOnCookie("69420", time.Now(), time.Now(), w)
+		if err != nil {
+			resp["error"] = err.Error()
+			utils.JSON(w, http.StatusInternalServerError, resp)
+			return
+		}
 
 		http.Redirect(w, r, models.Config.API.FrontendUrl, http.StatusFound)
 	}
@@ -103,6 +119,7 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 		var respStatus int
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
+				resp["error"] = "No token provided"
 				resp["is_authenticated"] = false
 				respStatus = http.StatusUnauthorized
 			} else {
@@ -122,13 +139,13 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
-    _, err = utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context(), w)
-    if err != nil {
-      resp["error"] = err.Error()
-      resp["is_authenticated"] = false
-      utils.JSON(w, http.StatusUnauthorized, resp)
-      return
-    }
+		_, err = utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context(), w)
+		if err != nil {
+			resp["error"] = err.Error()
+			resp["is_authenticated"] = false
+			utils.JSON(w, http.StatusUnauthorized, resp)
+			return
+		}
 
 		resp["is_authenticated"] = true
 		utils.JSON(w, http.StatusOK, resp)

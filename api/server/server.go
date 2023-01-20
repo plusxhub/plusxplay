@@ -76,9 +76,9 @@ func (s *Server) PrepareRouter() {
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: false,
+    AllowedMethods:   []string{"GET", "OPTIONS", "POST", "PUT", "PATCH"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "token"},
+		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 	//Store Router in Struct
