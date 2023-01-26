@@ -1,11 +1,30 @@
 import axios from 'axios'
-import { createEffect, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { Song } from '../types/Song'
 
 const [searchResults, setSearchResults] = createSignal<Song[]>()
 
-const [selectedSongs, setSelectedSongs] = createSignal<Song[]>()
-const searchTerm = 'Martin Garrix'
+const selectedSongsLocal: string = localStorage.getItem('selectedSongs') || '[]'
+
+const [activeSong, setActiveSong] = createSignal(0)
+
+let selectedSongsLocalParsed: Array<Song | null>
+
+if (selectedSongsLocal === '[]') {
+  selectedSongsLocalParsed = new Array<Song | null>(10).fill(null)
+  localStorage.setItem(
+    'selectedSongs',
+    JSON.stringify(selectedSongsLocalParsed)
+  )
+} else {
+  selectedSongsLocalParsed = JSON.parse(selectedSongsLocal)
+}
+
+const [selectedSongs, setSelectedSongs] = createSignal<Song[]>(
+  selectedSongsLocalParsed
+)
+
+const [searchTerm, setSearchTerm] = createSignal('')
 
 const truncateString = (originalString: string, maxLength: number) => {
   let truncatedString: string
@@ -19,11 +38,13 @@ const truncateString = (originalString: string, maxLength: number) => {
 }
 
 const getSearchResults = () => {
-  console.log('getting search results')
+  if (searchTerm() === '') {
+    return
+  }
   axios
     .get('http://localhost:8000/api/spotify/search', {
       params: {
-        query: searchTerm,
+        query: searchTerm(),
       },
       withCredentials: true,
     })
@@ -35,4 +56,14 @@ const getSearchResults = () => {
     })
 }
 
-export { getSearchResults, searchResults, truncateString }
+export {
+  getSearchResults,
+  searchResults,
+  truncateString,
+  selectedSongs,
+  setSelectedSongs,
+  searchTerm,
+  setSearchTerm,
+  activeSong,
+  setActiveSong,
+}

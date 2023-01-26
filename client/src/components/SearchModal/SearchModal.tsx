@@ -1,4 +1,13 @@
-import { Component } from 'solid-js'
+import { Component, createEffect, For } from 'solid-js'
+import { Song } from '../../types/Song'
+import debouncer from '../../utils/debounce'
+import {
+  getSearchResults,
+  searchResults,
+  searchTerm,
+  setSearchTerm,
+} from '../../utils/song'
+import SearchResult from '../SearchResults/SearchResults'
 
 import './SearchModal.css'
 
@@ -13,6 +22,12 @@ const closeModal = () => {
 }
 
 const SearchModal: Component = () => {
+  const debounceSearch = debouncer(getSearchResults, 300)
+
+  createEffect(() => {
+    searchTerm()
+    debounceSearch()
+  })
 
   return (
     <div>
@@ -23,29 +38,35 @@ const SearchModal: Component = () => {
         role='dialog'
         aria-modal='true'
       >
-        <div class='fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-[3px] transition-opacity'></div>
+        <div class='fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-[5px] transition-opacity'></div>
         <div class='fixed inset-0 z-10 overflow-y-auto'>
           <div class='flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'>
             <div class='relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg'>
-              <div class='bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4'>
-                <div class='sm:flex sm:items-start'>
-                  <div class='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
-                    <h3
-                      class='text-lg font-medium leading-6 text-gray-900'
-                      id='modal-title'
-                    >
-                      Deactivate account
-                    </h3>
-                  </div>
-                </div>
-              </div>
-              <div class='bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6'>
-                <button onClick={closeModal}
-                  type='button'
-                  class='inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm'
+              <a class='absolute top-3 right-3 scale-150' onClick={closeModal}>
+                <svg
+                  class='svg-icon'
+                  style='width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;'
+                  viewBox='0 0 1024 1024'
+                  version='1.1'
+                  xmlns='http://www.w3.org/2000/svg'
                 >
-                  Deactivate
-                </button>
+                  <path d='M647.744 285.696 512 421.504 376.256 285.696 285.696 376.256 421.504 512l-135.744 135.744 90.496 90.496L512 602.496l135.744 135.744 90.496-90.496L602.496 512l135.744-135.744L647.744 285.696zM874.048 149.952c-199.936-199.936-524.16-199.936-724.096 0-199.936 199.936-199.936 524.16 0 724.096 199.936 199.936 524.16 199.936 724.096 0C1073.984 674.112 1073.984 349.888 874.048 149.952zM783.552 783.552c-149.952 149.952-393.088 149.952-543.04 0s-149.952-393.088 0-543.04c149.952-149.952 393.088-149.952 543.04 0C933.504 390.464 933.504 633.536 783.552 783.552z' />
+                </svg>
+              </a>
+              <div class='flex flex-col px-4 justify-center items-center'>
+                <div class='text-[1.5rem] input-text mt-2'>Search Songs:</div>
+                <input
+                  value={searchTerm()}
+                  class='w-full rounded-md bg-base py-3 pl-10 outline-none mb-2'
+                  placeholder='Song Name, Ex: High On Life'
+                  onInput={(e) => setSearchTerm((e.target as any).value)} // HACK: Change any to suitable datatype
+                />
+              </div>
+
+              <div class='flex flex-col items-center p-2 rounded-lg shadow-md w-full overflow-y-scroll max-h-[50vh] scrollbar'>
+                <For each={searchResults()}>
+                  {(song: Song) => <SearchResult song={song} />}
+                </For>
               </div>
             </div>
           </div>

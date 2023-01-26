@@ -10,7 +10,7 @@ const Socials: Component = () => {
         <img
           src={instagramLogo}
           alt='Instagram'
-          class='pr-2 max-h-[4vh] lg:max-h-[5vh] h-full w-full'
+          class='pr-2 max-h-[5vh] lg:max-h-[5vh] h-full w-full'
         />
       </a>
 
@@ -18,7 +18,7 @@ const Socials: Component = () => {
         <img
           src={youtubeLogo}
           alt='Youtube'
-          class='pr-2 max-h-[4vh] lg:max-h-[5vh] h-full w-full'
+          class='pr-2 max-h-[5vh] lg:max-h-[5vh] h-full w-full'
         />
       </a>
 
@@ -26,7 +26,7 @@ const Socials: Component = () => {
         <img
           src={twitterLogo}
           alt='Twitter'
-          class='pr-2 max-h-[4vh] lg:max-h-[5vh] h-full'
+          class='pr-2 max-h-[5vh] lg:max-h-[5vh] h-full'
         />
       </a>
     </div>

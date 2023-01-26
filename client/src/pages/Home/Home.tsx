@@ -1,4 +1,3 @@
-import { useNavigate } from 'solid-app-router'
 import { Component, createEffect, onMount, Show } from 'solid-js'
 import plusxhubLogo from '../../../src/assets/plusxhub.jpg'
 import infoIcon from '../../../src/assets/info.svg'
@@ -32,13 +31,6 @@ const Home: Component = () => {
   createEffect(() => {
     localStorage.setItem('token', urlToken())
   })
-
-  // createEffect(() => {
-  //   if (isAuthenticated()) {
-  //     const navigate = useNavigate()
-  //     navigate('/submit')
-  //   }
-  // })
 
   return (
     <div class='flex justify-center items-center min-h-[100vh]'>

@@ -1,12 +1,17 @@
 import { useNavigate } from 'solid-app-router'
-import { Component, For, onMount } from 'solid-js'
+import { Accessor, Component, For, Index, onMount } from 'solid-js'
 import { Song } from '../../types/Song'
 import { isAuthenticated } from '../../utils/login'
-import { getSearchResults, searchResults } from '../../utils/song'
+import {
+  getSearchResults,
+  searchResults,
+  selectedSongs,
+} from '../../utils/song'
 import backArrow from '../../assets/back_button.svg'
 import Socials from '../../components/Socials'
 import SongCardMobile from '../../components/SongCard/SongCardMobile'
 import SongCard from '../../components/SongCard/SongCard'
+import SearchModal from '../../components/SearchModal/SearchModal'
 
 const Submit: Component = () => {
   onMount(() => {
@@ -19,19 +24,19 @@ const Submit: Component = () => {
     }
   })
 
-  const renderSongs = (song: Song) => {
+  const renderSongs = (idx: number, song: Song | null) => {
     return (
       <div>
-        <SongCardMobile song={song} />
-        <SongCard song={song} />
+        <SongCardMobile song={song} idx={idx} />
+        <SongCard song={song} idx={idx} />
       </div>
     )
   }
 
   return (
     <div class='flex justify-center items-center min-h-[100vh] overflow-x-hidden'>
-      <div class='flex flex-col my-[7vh] lg:my-0 bg-white rounded-xl justify-center items-center min-h-[85vh] w-[90vw] p-4'>
-        <div class='flex w-full justify-between my-1 '>
+      <div class='flex flex-col my-[7vh] md:my-0 lg:my-0 bg-white rounded-xl items-center min-h-[85vh] w-[90vw] p-4 relative'>
+        <div class='flex w-full justify-between my-1 2xl:mb-4 lg:mb-8'>
           <a href='/'>
             <img
               src={backArrow}
@@ -41,8 +46,11 @@ const Submit: Component = () => {
           </a>
           <Socials />
         </div>
+        <SearchModal />
         <div class='lg:grid md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-1 justify-center items-center w-full'>
-          <For each={searchResults()}>{(song: Song) => renderSongs(song)}</For>
+          <For each={selectedSongs()}>
+            {(song: Song | null, idx) => renderSongs(idx(), song)}
+          </For>
         </div>
         <button class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-3'>
           Lulli
