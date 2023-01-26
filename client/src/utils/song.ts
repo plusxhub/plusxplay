@@ -1,9 +1,22 @@
 import axios from 'axios'
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 import { Song } from '../types/Song'
 
 const [searchResults, setSearchResults] = createSignal<Song[]>()
-const searchTerm = 'In the name of love'
+
+const [selectedSongs, setSelectedSongs] = createSignal<Song[]>()
+const searchTerm = 'Martin Garrix'
+
+const truncateString = (originalString: string, maxLength: number) => {
+  let truncatedString: string
+
+  if (originalString.length > maxLength) {
+    truncatedString = originalString.substring(0, maxLength) + '...'
+  } else {
+    truncatedString = originalString
+  }
+  return truncatedString
+}
 
 const getSearchResults = () => {
   console.log('getting search results')
@@ -22,4 +35,4 @@ const getSearchResults = () => {
     })
 }
 
-export { getSearchResults, searchResults }
+export { getSearchResults, searchResults, truncateString }

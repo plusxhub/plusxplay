@@ -1,5 +1,5 @@
 import { Component } from "solid-js";
-import { Song } from "../types/Song";
+import { Song } from "../../types/Song";
 
 interface SongProps {
   song: Song
@@ -7,8 +7,8 @@ interface SongProps {
 
 const SongCard: Component<SongProps> = ({ song }) => {
   return (
-    <div class="flex min-w-[15vh]">
-      <img class="" src={song.image} alt={song.name} />
+    <div class="lg:flex m-2 hidden">
+      <img class="w-full h-full object-cover rounded-lg" src={song.image} alt={song.name} />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from 'solid-app-router'
-import { Component, createEffect, onMount } from 'solid-js'
+import { Component, createEffect, onMount, Show } from 'solid-js'
 import plusxhubLogo from '../../../src/assets/plusxhub.jpg'
 import infoIcon from '../../../src/assets/info.svg'
 import Hero from '../../components/Hero/Hero'
@@ -11,6 +11,9 @@ import {
 import LoginButton from '../../components/LoginButton/LoginButton'
 
 import './Home.css'
+import Socials from '../../components/Socials'
+import SearchModal from '../../components/SearchModal/SearchModal'
+import {urlToken} from '../../utils/login'
 
 const Home: Component = () => {
   onMount(() => {
@@ -25,16 +28,24 @@ const Home: Component = () => {
     checkAuthenticationStatus()
   })
 
+
   createEffect(() => {
-    if (isAuthenticated()) {
-      const navigate = useNavigate()
-      navigate('/submit')
-    }
+    localStorage.setItem('token', urlToken())
   })
+
+  // createEffect(() => {
+  //   if (isAuthenticated()) {
+  //     const navigate = useNavigate()
+  //     navigate('/submit')
+  //   }
+  // })
 
   return (
     <div class='flex justify-center items-center min-h-[100vh]'>
-      <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] w-[90vw] p-1'>
+      <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] max-h-[85vh] w-[90vw] p-1 relative'>
+        <span class="absolute top-4 right-4">
+          <Socials />
+        </span>
         <img
           src={plusxhubLogo}
           class='h-[12vh] lg:h-[17vh] mb-4 rounded-xl'
@@ -45,7 +56,7 @@ const Home: Component = () => {
           Show the world what you're listening to!
         </p>
 
-        <div class='flex mt-2'>
+        <div class='flex sm: mt-1 lg:mt-2'>
           <img
             src={infoIcon}
             alt='Info Icon'
@@ -56,17 +67,22 @@ const Home: Component = () => {
             href='/info'
             class='group transition duration-300 ease-in-out hover:text-accent/70 infotexthover text-xl lg:text-3xl mb-4 bottom-[0.12rem]'
           >
-           How does this work?
+            How does this work?
             <span class='block bg-[#ff8208] h-0.5 lg:h-0.75 max-w-0 transition-all duration-500 group-hover:max-w-full '></span>
           </a>
-
-          {/* <div class='infotexthover text-xl lg:text-3xl mb-4 bottom-[0.12rem]'> */}
-          {/*   <span class='infotextwrapper'> */}
-          {/*   </span> */}
-          {/*   <a href='/info'>How does this work?</a> */}
-          {/* </div> */}
         </div>
-        <LoginButton />
+        <SearchModal />
+        <Show when={isAuthenticated()} fallback={<LoginButton />}>
+          <div class='flex flex-wrap justify-center'>
+            <a
+              href='/submit'
+              class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'
+            >
+              <p class='btnText text-lg lg:text-2xl'>🎵 Submit a playlist!</p>
+            </a>
+            <LoginButton />
+          </div>
+        </Show>
       </div>
     </div>
   )

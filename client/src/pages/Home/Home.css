@@ -5,6 +5,12 @@
   font-weight: 600;
 }
 
+
+.btnText {
+  font-family: 'Russo One', sans-serif;
+  font-weight: 100;
+}
+
 .subtext {
   font-family: 'Russo One', sans-serif;
   line-height: 2rem;
@@ -15,33 +21,6 @@
 }
 
 .infotexthover {
-  position: relative;
-  display: inline-block;
-}
-
-.infotexthover:hover .infotextwrapper {
-  width: 100%;
-}
-
-.infotexthover {
   font-family: 'Russo One', sans-serif;
   color: #ff8208;
-}
-
-.infotextwrapper {
-  position: absolute;
-  display: inline-block;
-  overflow: hidden;
-  width: 0;
-  display: inline-block;
-  white-space: pre;
-  font-family: 'Russo One', sans-serif;
-  color: #ff8208;
-  transition: width 500ms;
-  border-bottom: 1px solid;
-  padding-bottom: 0.15em;
-}
-
-.infotextwrapper a {
-  color: inherit;
 }

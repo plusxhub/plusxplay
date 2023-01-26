@@ -1,20 +1,16 @@
 import axios from 'axios'
-import { createEffect, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 const [isAuthenticated, setIsAuthenticated] = createSignal(false)
 
 const [urlToken, setUrlToken] = createSignal(localStorage.getItem('token'))
-
-createEffect(() => {
-  localStorage.setItem('token', urlToken())
-})
 
 const spotifyLogin = () => {
   axios
     .get('http://localhost:8000/api/auth/url')
     .then((res) => {
       // console.log
-      window.location = res.data.url
+      window.location.href = res.data.url
     })
     .catch((err) => {
       console.log(err)
@@ -22,8 +18,7 @@ const spotifyLogin = () => {
 }
 
 const spotifyLogout = () => {
-  window.location = 'http://localhost:8000/api/auth/logout' as any
-  // checkAuthenticationStatus()
+  window.location.href = 'http://localhost:8000/api/auth/logout'
 }
 
 const checkAuthenticationStatus = () => {
@@ -46,6 +41,7 @@ export {
   setIsAuthenticated,
   spotifyLogin,
   spotifyLogout,
+  urlToken,
   setUrlToken,
   checkAuthenticationStatus,
 }

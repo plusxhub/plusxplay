@@ -3,7 +3,7 @@ import './InfoList.css'
 
 const InfoList: Component = () => {
   return (
-    <ol class="numbered live">
+    <ol class="numbered live my-0 lg:my-8">
       <li class='flex fade-item text-xl lg:text-3xl mb-4'>
         <a
           href='https://open.spotify.com/playlist/3COgB78xhNqPCASjmQF8A6'
