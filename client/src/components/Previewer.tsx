@@ -1,4 +1,4 @@
-import { Component, createSignal, Show } from 'solid-js'
+import { Component, Show } from 'solid-js'
 import playButton from '../assets/play_button.svg'
 import pauseButton from '../assets/pause_button.svg'
 import { currentlyPreviewing, setCurrentlyPreviewing } from '../utils/song'

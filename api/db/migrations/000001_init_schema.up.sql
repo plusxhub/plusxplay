@@ -10,9 +10,8 @@ CREATE TABLE IF NOT EXISTS spotify_tokens (
 
 
 CREATE TABLE IF NOT EXISTS users (
-  id BIGSERIAL PRIMARY KEY,
+  spotify_id VARCHAR(300) NOT NULL UNIQUE PRIMARY KEY,
   display_name VARCHAR(400) NOT NULL,
-  spotify_id VARCHAR(300) NOT NULL UNIQUE,
   country VARCHAR(100),
   image_url TEXT,
   choices VARCHAR(300)[] 

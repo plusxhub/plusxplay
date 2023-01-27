@@ -44,6 +44,10 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		),
 	)
 
+	mainRouter.Post("/submit-playlist",
+		handlers.SubmitPlaylistHandlers(s.Queries),
+	)
+
 	mainRouter.Mount("/auth", authRouter)
 	mainRouter.Mount("/spotify", spotifyRouter)
 }
