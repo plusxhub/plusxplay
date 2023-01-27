@@ -63,7 +63,7 @@ const SearchModal: Component = () => {
                 />
               </div>
 
-              <div class='flex flex-col items-center p-2 rounded-lg shadow-md w-full overflow-y-scroll max-h-[50vh] scrollbar'>
+              <div class='flex flex-col items-center p-2 rounded-lg shadow-md w-full overflow-x-hidden overflow-y-scroll max-h-[50vh] scrollbar'>
                 <For each={searchResults()}>
                   {(song: Song) => <SearchResult song={song} />}
                 </For>

@@ -3,6 +3,7 @@ import { Song } from '../../types/Song'
 import {
   activeSong,
   selectedSongs,
+  setSearchTerm,
   setSelectedSongs,
   truncateString,
 } from '../../utils/song'
@@ -15,11 +16,14 @@ interface SearchResultProps {
 const handleResultClick = (song: Song) => {
   const songs = selectedSongs()
   songs[activeSong()] = song
-  setSelectedSongs(songs)
+  setSelectedSongs([...songs])
+  localStorage.setItem('selectedSongs', JSON.stringify(selectedSongs()))
+  setSearchTerm('')
   closeModal()
 }
 
 const SearchResult: Component<SearchResultProps> = ({ song }) => {
+  const artists: string = song.artists.map((artist) => artist.name).join(', ')
   return (
     <a
       class='flex w-full my-1 hover:cursor-pointer'
@@ -29,17 +33,18 @@ const SearchResult: Component<SearchResultProps> = ({ song }) => {
         <img
           src={song.image}
           alt={song.name}
-          class='w-12 h-12 rounded-lg mr-6 object-contain'
+          class='w-12 h-12 rounded-lg mr-2 object-contain'
         />
       </div>
       <div>
-        <p class='font-medium'>{truncateString(song.name, 18)}</p>
-        <p class='text-gray-600 text-sm'>
-          {truncateString(
-            song.artists.map((artist) => artist.name).join(', '),
-            30
-          )}
+        <p class='font-medium block lg:hidden whitespace-nowrap'>
+          {truncateString(song.name, 24)}
         </p>
+        <p class='font-medium hidden lg:block'>
+          {truncateString(song.name, 40)}  {/* BUG: Fix for md devices */}
+
+        </p>
+        <p class='text-gray-600 text-sm'>{truncateString(artists,30)}</p>
       </div>
     </a>
   )

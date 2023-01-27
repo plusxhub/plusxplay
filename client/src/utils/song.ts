@@ -8,6 +8,8 @@ const selectedSongsLocal: string = localStorage.getItem('selectedSongs') || '[]'
 
 const [activeSong, setActiveSong] = createSignal(0)
 
+const [currentlyPreviewing, setCurrentlyPreviewing] = createSignal(null)
+
 let selectedSongsLocalParsed: Array<Song | null>
 
 if (selectedSongsLocal === '[]') {
@@ -39,6 +41,7 @@ const truncateString = (originalString: string, maxLength: number) => {
 
 const getSearchResults = () => {
   if (searchTerm() === '') {
+    setSearchResults([] as Song[])
     return
   }
   axios
@@ -56,6 +59,13 @@ const getSearchResults = () => {
     })
 }
 
+const discardSong = (idx: number) => {
+  const songs = selectedSongs()
+  songs[idx] = null
+  setSelectedSongs([...songs])
+  localStorage.setItem('selectedSongs', JSON.stringify(selectedSongs()))
+}
+
 export {
   getSearchResults,
   searchResults,
@@ -66,4 +76,7 @@ export {
   setSearchTerm,
   activeSong,
   setActiveSong,
+  currentlyPreviewing,
+  setCurrentlyPreviewing,
+  discardSong,
 }

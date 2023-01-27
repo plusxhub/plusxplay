@@ -1,5 +1,5 @@
 import { useNavigate } from 'solid-app-router'
-import { Accessor, Component, For, Index, onMount } from 'solid-js'
+import { Accessor, Component, For, Index, onMount, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import { isAuthenticated } from '../../utils/login'
 import {
@@ -52,9 +52,18 @@ const Submit: Component = () => {
             {(song: Song | null, idx) => renderSongs(idx(), song)}
           </For>
         </div>
-        <button class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-3'>
-          Lulli
-        </button>
+        <Show
+          when={selectedSongs().filter((val) => val === null).length === 0}
+          fallback={
+            <button disabled class='text-white bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2  dark:focus:ring-gray-700 dark:border-gray-700 mt-3 hover:cursor-not-allowed'>
+              Select another {selectedSongs().filter((val) => val === null).length} songs
+            </button>
+          }
+        >
+          <button class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-3'>
+            Submit
+          </button>
+        </Show>
       </div>
     </div>
   )

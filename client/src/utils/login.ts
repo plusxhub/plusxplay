@@ -33,6 +33,7 @@ const checkAuthenticationStatus = () => {
     })
     .catch((err) => {
       console.log(err)
+      setIsAuthenticated(false)
     })
 }
 
