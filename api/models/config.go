@@ -23,6 +23,7 @@ type SpotifyConf struct {
 	ClientID     string `mapstructure:"client_id"`
 	ClientSecret string `mapstructure:"client_secret"`
 	RedirectURI  string `mapstructure:"redirect_uri"`
+  TargetPlaylist string `mapstructure:"target_playlist"`
 }
 
 type APIConf struct {

@@ -45,7 +45,7 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 		spotifyUser, err := utils.GetSpotifyUser(spotifyTokens.AccessToken)
 
 		if err != nil {
-			resp["error"] = "No such user exists."
+			resp["error"] = err.Error()
 			utils.JSON(w, http.StatusUnauthorized, resp)
 			return
 		}
@@ -56,7 +56,7 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 				DisplayName: spotifyUser.DisplayName,
 				SpotifyID:   spotifyUser.ID,
 				Country:     utils.GetNullString(spotifyUser.Country),
-				ImageUrl:    utils.GetNullString(spotifyUser.Images[0].URL),
+				ImageUrl:    utils.GetUserProfileImage(spotifyUser),
 			},
 		)
 		if err != nil {
@@ -148,6 +148,32 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 		}
 
 		resp["is_authenticated"] = true
+		resp["is_admin"] = utils.IsAdmin(spotifyId)
+		utils.JSON(w, http.StatusOK, resp)
+	}
+}
+
+func IsAdminHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var resp map[string]interface{} = make(map[string]interface{})
+
+		jwtTokenCookie, err := r.Cookie("token")
+
+		if err != nil {
+			resp["error"] = "No token found"
+			utils.JSON(w, http.StatusUnauthorized, resp)
+			return
+		}
+
+		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtTokenCookie.Value)
+		if errMsg != "" {
+			resp["error"] = errMsg
+			utils.JSON(w, status, resp)
+			return
+		}
+
+		resp["is_admin"] = utils.IsAdmin(spotifyId)
 		utils.JSON(w, http.StatusOK, resp)
 	}
 }

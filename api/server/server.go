@@ -26,6 +26,7 @@ type Server struct {
 	Queries   *db.Queries
 	DB        *sql.DB
 	OauthConf *oauth2.Config
+  AdminOauthConf *oauth2.Config
 }
 
 func New() *Server {
@@ -93,6 +94,14 @@ func (s *Server) PrepareOauth2() {
 		Scopes:       []string{"user-read-private"},
 		Endpoint:     spotifyOauth.Endpoint,
 	}
+
+  s.AdminOauthConf = &oauth2.Config{
+		RedirectURL:  models.Config.Spotify.RedirectURI,
+		ClientID:     models.Config.Spotify.ClientID,
+		ClientSecret: models.Config.Spotify.ClientSecret,
+		Scopes:       []string{"user-read-private", "playlist-modify-public"},
+		Endpoint:     spotifyOauth.Endpoint,
+  }
 }
 
 func (s *Server) RunServer() (err error) {

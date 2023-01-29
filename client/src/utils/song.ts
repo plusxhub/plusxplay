@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { createSignal } from 'solid-js'
 import { Song } from '../types/Song'
+import API_URL from './api'
 
 const [searchResults, setSearchResults] = createSignal<Song[]>()
 
@@ -45,7 +46,7 @@ const getSearchResults = () => {
     return
   }
   axios
-    .get('http://localhost:8000/api/spotify/search', {
+    .get(API_URL + '/spotify/search', {
       params: {
         query: searchTerm(),
       },

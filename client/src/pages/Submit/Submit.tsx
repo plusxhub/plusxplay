@@ -9,6 +9,7 @@ import SongCardMobile from '../../components/SongCard/SongCardMobile'
 import SongCard from '../../components/SongCard/SongCard'
 import SearchModal from '../../components/SearchModal/SearchModal'
 import axios from 'axios'
+import API_URL from '../../utils/api'
 
 const Submit: Component = () => {
   onMount(() => {
@@ -33,7 +34,7 @@ const Submit: Component = () => {
   const handleSubmission = () => {
     axios
       .post(
-        'http://localhost:8000/api/submit-playlist',
+        API_URL + '/submit-playlist',
         {
           selectedSongs: selectedSongs(),
         },

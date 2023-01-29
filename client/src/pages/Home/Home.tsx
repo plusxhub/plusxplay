@@ -4,6 +4,7 @@ import infoIcon from '../../../src/assets/info.svg'
 import Hero from '../../components/Hero/Hero'
 import {
   checkAuthenticationStatus,
+  isAdmin,
   isAuthenticated,
   setUrlToken,
 } from '../../utils/login'
@@ -12,7 +13,7 @@ import LoginButton from '../../components/LoginButton/LoginButton'
 import './Home.css'
 import Socials from '../../components/Socials'
 import SearchModal from '../../components/SearchModal/SearchModal'
-import {urlToken} from '../../utils/login'
+import { urlToken } from '../../utils/login'
 
 const Home: Component = () => {
   onMount(() => {
@@ -27,7 +28,6 @@ const Home: Component = () => {
     checkAuthenticationStatus()
   })
 
-
   createEffect(() => {
     localStorage.setItem('token', urlToken())
   })
@@ -35,7 +35,7 @@ const Home: Component = () => {
   return (
     <div class='flex justify-center items-center min-h-[100vh]'>
       <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] max-h-[85vh] w-[90vw] p-1 relative'>
-        <span class="absolute top-4 right-4">
+        <span class='absolute top-4 right-4'>
           <Socials />
         </span>
         <img
@@ -73,6 +73,15 @@ const Home: Component = () => {
               <p class='btnText text-lg lg:text-2xl'>🎵 Submit a playlist!</p>
             </a>
             <LoginButton />
+
+            <Show when={isAdmin()}>
+              <a
+                href='/admin'
+                class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'
+              >
+                <p class='btnText text-lg lg:text-2xl'>Admin Page</p>
+              </a>
+            </Show>
           </div>
         </Show>
       </div>

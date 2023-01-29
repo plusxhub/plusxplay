@@ -1,11 +1,14 @@
 package utils
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -18,10 +21,17 @@ import (
 
 const baseURL = "https://api.spotify.com/v1/"
 
-func ExecuteSpotifyRequest(endpoint, access_token string, resp interface{}) error {
+func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_token string, resp interface{}) error {
 
 	url := baseURL + endpoint
-	req, err := http.NewRequest("GET", url, nil)
+
+	var bodyReader io.Reader
+
+	if body != nil {
+		bodyReader = bytes.NewBuffer(*body)
+	}
+
+	req, err := http.NewRequest(httpMethod, url, bodyReader)
 	if err != nil {
 		return err
 	}
@@ -34,16 +44,18 @@ func ExecuteSpotifyRequest(endpoint, access_token string, resp interface{}) erro
 	}
 	defer spotifyResp.Body.Close()
 
-	// bodyBytes, err := io.ReadAll(spotifyResp.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// bodyString := string(bodyBytes)
-	// log.Println("Response from spotify", bodyString)
+	bodyBytes, err := io.ReadAll(spotifyResp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bodyString := string(bodyBytes)
+	log.Println("Response from spotify", bodyString)
+	
+	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
 		//TODO: Use the error model to send the required error.
-		return errors.New("No valid search results found.")
+		return errors.New("No valid results found.")
 	}
 
 	return nil
@@ -55,11 +67,10 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 		"refresh_token": {refresh_token},
 		"client_id":     {models.Config.Spotify.ClientID},
 		"client_secret": {models.Config.Spotify.ClientSecret},
-
-  }
+	}
 	req, err := http.NewRequest("POST", "https://accounts.spotify.com/api/token", strings.NewReader(reqBody.Encode()))
 	if err != nil {
-    return nil, err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -85,46 +96,46 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 
 func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.Context, w http.ResponseWriter) (*db.SpotifyToken, error) {
 
-		token, err := queries.GetSpotifyToken(
-			ctx, spotifyId,
-		)
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("No such user exists.")
+	token, err := queries.GetSpotifyToken(
+		ctx, spotifyId,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.New("No such user exists.")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if time.Now().UTC().After(token.ExpiresAt) {
+		log.Println("Refreshing token")
+		updateParams, err := RefreshSpotifyToken(token.RefreshToken)
+		if err != nil {
+			return nil, err
 		}
+		updateParams.SpotifyUserID = spotifyId
+		token, err = queries.CreateOrUpdateSpotifyTokens(
+			ctx,
+			*updateParams,
+		)
 		if err != nil {
 			return nil, err
 		}
 
-		if time.Now().UTC().After(token.ExpiresAt) {
-    log.Println("Refreshing token")
-			updateParams, err := RefreshSpotifyToken(token.RefreshToken)
-			if err != nil {
-				return nil, err
-			}
-			updateParams.SpotifyUserID = spotifyId
-			token, err = queries.CreateOrUpdateSpotifyTokens(
-				ctx,
-				*updateParams,
-			)
-			if err != nil {
-				return nil, err
-			}
-      
-      err = SetJWTOnCookie(token.SpotifyUserID, token.ExpiresAt.UTC(), time.Now().UTC(), w)
-      if err != nil {
-        return nil, err
-      }
+		err = SetJWTOnCookie(token.SpotifyUserID, token.ExpiresAt.UTC(), time.Now().UTC(), w)
+		if err != nil {
+			return nil, err
 		}
+	}
 
-  return &token, nil
+	return &token, nil
 
 }
 
-func SearchTracks(access_token, query string, limit int) (*[]models.SpotifyTrack, error) {
+func SearchTracks(accessToken, query string, limit int) (*[]models.SpotifyTrack, error) {
 
 	var spotifySearchResponse models.SpotifySearchResponse
 	endpoint := fmt.Sprintf("search?type=track&limit=%d&q=%s", limit, strings.ReplaceAll(query, " ", "+"))
-	if err := ExecuteSpotifyRequest(endpoint, access_token, &spotifySearchResponse); err != nil {
+	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
 		return nil, err
 	}
 
@@ -137,12 +148,137 @@ func SearchTracks(access_token, query string, limit int) (*[]models.SpotifyTrack
 			Artists:     getSpotifyArtists(item.Artists),
 			ReleaseDate: item.Album.ReleaseDate,
 			Image:       item.Album.Images[1].URL,
-			PreviewURl:  item.PreviewURL,
+			PreviewURL:  item.PreviewURL,
 		}
 		tracks = append(tracks, track)
 	}
 
 	return &tracks, nil
+}
+
+func GetSpotifySongs(accessToken string, songIDs []string) (*[]models.SpotifyTrack, error) {
+
+	var spotifySearchResponse models.SpotifySeveralTracksRespponse
+	endpoint := fmt.Sprintf("tracks?ids=%s", strings.Join(songIDs, ","))
+	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
+		return nil, err
+	}
+
+	var tracks []models.SpotifyTrack
+
+	for _, item := range spotifySearchResponse.Tracks {
+		track := models.SpotifyTrack{
+			ID:          item.ID,
+			Name:        item.Name,
+			Artists:     getSpotifyArtists(item.Artists),
+			ReleaseDate: item.Album.ReleaseDate,
+			Image:       item.Album.Images[1].URL,
+			PreviewURL:  item.PreviewURL,
+		}
+		tracks = append(tracks, track)
+	}
+
+	return &tracks, nil
+}
+
+func SetPlaylist(accessToken string, songIDs []string) error {
+	if err := clearPlaylistSongs(accessToken); err != nil {
+		return err
+	}
+
+	var spotifyAddResponse models.SpotifyUpdatePlaylistItemsResponse
+
+  log.Println("Setting playlist")
+
+	requestBody := struct {
+		Uris []string `json:"uris"`
+	}{}
+
+	for _, songID := range songIDs {
+		requestBody.Uris = append(requestBody.Uris, "spotify:track:"+songID)
+	}
+
+	jsonValue, _ := json.Marshal(requestBody)
+
+  log.Println("Request payload", string(jsonValue))
+
+	endpoint := fmt.Sprintf("playlists/%s/tracks", models.Config.Spotify.TargetPlaylist)
+	if err := ExecuteSpotifyRequest(endpoint, http.MethodPost, &jsonValue, accessToken, &spotifyAddResponse); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func clearPlaylistSongs(accessToken string) error {
+
+	var uris []string
+
+	playlistItems, err := getPlaylistSongs(accessToken)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range *playlistItems {
+		uris = append(uris, item.URI)
+	}
+
+	var spotifyDeleteResponse models.SpotifyUpdatePlaylistItemsResponse
+
+	requestBody := models.DeletePlaylistItemsBody{
+		Tracks: []struct {
+			URI string "json:\"uri\""
+		}{},
+	}
+
+	for _, uri := range uris {
+		uriStruct := struct {
+			URI string "json:\"uri\""
+		}{uri}
+		requestBody.Tracks = append(requestBody.Tracks, uriStruct)
+	}
+
+	jsonValue, _ := json.Marshal(requestBody)
+
+	endpoint := fmt.Sprintf("playlists/%s/tracks", models.Config.Spotify.TargetPlaylist)
+	err = ExecuteSpotifyRequest(endpoint, http.MethodDelete, &jsonValue, accessToken, &spotifyDeleteResponse)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println(spotifyDeleteResponse)
+
+	return nil
+}
+
+func getPlaylistSongs(accessToken string) (*[]models.PlaylistItem, error) {
+
+	var spotifySearchResponse models.SpotifyGetPlaylistItemsResponse
+	endpoint := fmt.Sprintf("playlists/%s/tracks", models.Config.Spotify.TargetPlaylist)
+	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
+		return nil, err
+	}
+
+	var playlistItems []models.PlaylistItem
+
+	for _, item := range spotifySearchResponse.Items {
+		track := models.PlaylistItem{
+			ID:          item.Track.ID,
+			Name:        item.Track.Name,
+			Artists:     getSpotifyArtists(item.Track.Artists),
+			ReleaseDate: item.Track.Album.ReleaseDate,
+			Image:       item.Track.Album.Images[1].URL,
+			PreviewUrl:  item.Track.PreviewURL,
+			URI:         item.Track.URI,
+			AddedAt:     item.AddedAt,
+			AddedBy:     item.AddedBy.ID,
+		}
+
+		playlistItems = append(playlistItems, track)
+	}
+
+	return &playlistItems, nil
 }
 
 func getSpotifyArtists(artists []models.SpotifyArtistResponse) []models.SpotifyArtist {

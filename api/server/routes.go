@@ -21,6 +21,7 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 			s.OauthConf,
 		),
 	)
+
 	authRouter.Get("/callback",
 		handlers.CallbackHandler(
 			s.Queries,
@@ -36,6 +37,15 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		handlers.IsAuthenticatedHandler(s.Queries),
 	)
 
+	adminAuthRouter := chi.NewRouter()
+
+	adminAuthRouter.Get(
+		"/url",
+		handlers.GetAuthURLHandler(
+			s.AdminOauthConf,
+		),
+	)
+
 	spotifyRouter := chi.NewRouter()
 	spotifyRouter.Get("/search",
 		handlers.SpotifySearchHandler(
@@ -44,10 +54,20 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		),
 	)
 
+	spotifyRouter.Get("/playlist/{userSpotifyId}",
+		handlers.GetUserPlaylistHandler(s.Queries),
+	)
+
+
+	spotifyRouter.Get("/playlist/set/{userSpotifyId}",
+		handlers.SetPlaylistHandler(s.Queries),
+	)
+
 	mainRouter.Post("/submit-playlist",
 		handlers.SubmitPlaylistHandlers(s.Queries),
 	)
 
 	mainRouter.Mount("/auth", authRouter)
+	mainRouter.Mount("/admin", adminAuthRouter)
 	mainRouter.Mount("/spotify", spotifyRouter)
 }

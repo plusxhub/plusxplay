@@ -1,13 +1,16 @@
 import axios from 'axios'
 import { createSignal } from 'solid-js'
+import API_URL from './api'
 
 const [isAuthenticated, setIsAuthenticated] = createSignal(false)
+
+const [isAdmin, setIsAdmin] = createSignal(false)
 
 const [urlToken, setUrlToken] = createSignal(localStorage.getItem('token'))
 
 const spotifyLogin = () => {
   axios
-    .get('http://localhost:8000/api/auth/url')
+    .get(API_URL + '/auth/url')
     .then((res) => {
       // console.log
       window.location.href = res.data.url
@@ -18,22 +21,26 @@ const spotifyLogin = () => {
 }
 
 const spotifyLogout = () => {
-  window.location.href = 'http://localhost:8000/api/auth/logout'
+  window.location.href = API_URL + '/auth/logout'
 }
 
 const checkAuthenticationStatus = () => {
   axios
-    .get('http://localhost:8000/api/auth/is-authenticated', {
+    .get(API_URL + '/auth/is-authenticated', {
       withCredentials: true,
     })
     .then(({ data }) => {
       if (data.is_authenticated) {
         setIsAuthenticated(true)
       }
+      if (data.is_admin) {
+        setIsAdmin(true)
+      }
     })
     .catch((err) => {
       console.log(err)
       setIsAuthenticated(false)
+      setIsAdmin(false)
     })
 }
 
@@ -45,4 +52,5 @@ export {
   urlToken,
   setUrlToken,
   checkAuthenticationStatus,
+  isAdmin,
 }
