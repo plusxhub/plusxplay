@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "axios": "^1.2.2",
+    "confetti-js": "^0.0.18",
     "solid-app-router": "^0.4.2",
     "solid-js": "^1.6.6"
   }

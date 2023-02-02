@@ -7,7 +7,10 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const createOrUpdatePlaylist = `-- name: CreateOrUpdatePlaylist :one
@@ -120,6 +123,67 @@ func (q *Queries) GetPlaylist(ctx context.Context, spotifyUserID string) (UserPl
 		&i.Choice10,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRandomPlaylist = `-- name: GetRandomPlaylist :one
+SELECT 
+  user_playlists.id, user_playlists.spotify_user_id, user_playlists.choice1, user_playlists.choice2, user_playlists.choice3, user_playlists.choice4, user_playlists.choice5, user_playlists.choice6, user_playlists.choice7, user_playlists.choice8, user_playlists.choice9, user_playlists.choice10, user_playlists.created_at, user_playlists.updated_at, 
+  users.spotify_id, users.display_name, users.country, users.image_url, users.choices 
+FROM 
+  user_playlists 
+  INNER JOIN users ON user_playlists.spotify_user_id = users.spotify_id 
+ORDER BY 
+  RANDOM() 
+LIMIT 1
+`
+
+type GetRandomPlaylistRow struct {
+	ID            int32          `json:"id"`
+	SpotifyUserID string         `json:"spotifyUserID"`
+	Choice1       string         `json:"choice1"`
+	Choice2       string         `json:"choice2"`
+	Choice3       string         `json:"choice3"`
+	Choice4       string         `json:"choice4"`
+	Choice5       string         `json:"choice5"`
+	Choice6       string         `json:"choice6"`
+	Choice7       string         `json:"choice7"`
+	Choice8       string         `json:"choice8"`
+	Choice9       string         `json:"choice9"`
+	Choice10      string         `json:"choice10"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	SpotifyID     string         `json:"spotifyID"`
+	DisplayName   string         `json:"displayName"`
+	Country       sql.NullString `json:"country"`
+	ImageUrl      sql.NullString `json:"imageUrl"`
+	Choices       []string       `json:"choices"`
+}
+
+func (q *Queries) GetRandomPlaylist(ctx context.Context) (GetRandomPlaylistRow, error) {
+	row := q.db.QueryRowContext(ctx, getRandomPlaylist)
+	var i GetRandomPlaylistRow
+	err := row.Scan(
+		&i.ID,
+		&i.SpotifyUserID,
+		&i.Choice1,
+		&i.Choice2,
+		&i.Choice3,
+		&i.Choice4,
+		&i.Choice5,
+		&i.Choice6,
+		&i.Choice7,
+		&i.Choice8,
+		&i.Choice9,
+		&i.Choice10,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpotifyID,
+		&i.DisplayName,
+		&i.Country,
+		&i.ImageUrl,
+		pq.Array(&i.Choices),
 	)
 	return i, err
 }

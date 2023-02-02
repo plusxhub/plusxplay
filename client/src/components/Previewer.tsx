@@ -33,13 +33,7 @@ const Previewer: Component<PreviewerProps> = ({ songUrl, idx }) => {
 
   return (
     <Show
-      when={songUrl !== null}
-      fallback={
-        <button disabled class='hover:cursor-not-allowed px-1'>
-          <img src={playButton} class='h-8 px-1' />{' '}
-          {/* TODO: Show disabled message on hover */}
-        </button>
-      }
+      when={songUrl !== ""}
     >
       <button onClick={() => togglePreview(idx)}>
         <Show

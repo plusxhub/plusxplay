@@ -2,7 +2,11 @@ import { useNavigate } from 'solid-app-router'
 import { Component, For, onMount, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import { isAuthenticated } from '../../utils/login'
-import { getSearchResults, selectedSongs, setSearchTerm } from '../../utils/song'
+import {
+  getSearchResults,
+  selectedSongs,
+  setSearchTerm,
+} from '../../utils/song'
 import backArrow from '../../assets/back_button.svg'
 import Socials from '../../components/Socials'
 import SongCardMobile from '../../components/SongCard/SongCardMobile'
@@ -12,12 +16,14 @@ import axios from 'axios'
 import API_URL from '../../utils/api'
 
 const Submit: Component = () => {
+  const navigate = useNavigate()
+
   onMount(() => {
     // BUG: Navigating me back even when authenticated on refresh
     if (!isAuthenticated()) {
       const navigate = useNavigate()
       navigate('/')
-    } 
+    }
     setSearchTerm('')
   })
 
@@ -38,11 +44,14 @@ const Submit: Component = () => {
           selectedSongs: selectedSongs(),
         },
         {
-          withCredentials:true,
+          withCredentials: true,
         }
       )
       .then((res) => {
         console.log(res)
+        if (res.status == 200) {
+          navigate('/submitted')
+        }
         // Navigate to congrats page if res.ok
       })
       .catch((err) => {

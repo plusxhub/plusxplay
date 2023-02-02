@@ -35,3 +35,14 @@ RETURNING *;
 SELECT * FROM user_playlists
 WHERE spotify_user_id = $1
 LIMIT 1;
+
+-- name: GetRandomPlaylist :one
+SELECT 
+  user_playlists.*, 
+  users.* 
+FROM 
+  user_playlists 
+  INNER JOIN users ON user_playlists.spotify_user_id = users.spotify_id 
+ORDER BY 
+  RANDOM() 
+LIMIT 1;
