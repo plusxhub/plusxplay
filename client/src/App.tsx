@@ -1,5 +1,5 @@
 import { Route, Routes } from 'solid-app-router'
-import type { Component } from 'solid-js'
+import { Component, createEffect } from 'solid-js'
 import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/AdminLogin'
 import Home from './pages/Home/Home'
@@ -8,7 +8,7 @@ import Submit from './pages/Submit/Submit'
 
 const App: Component = () => {
   return (
-    <div class='bggradient min-h-[100vh]'>
+    <div class='bggradient'>
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/submit' element={<Submit />} />

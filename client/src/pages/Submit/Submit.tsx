@@ -2,7 +2,7 @@ import { useNavigate } from 'solid-app-router'
 import { Component, For, onMount, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import { isAuthenticated } from '../../utils/login'
-import { getSearchResults, selectedSongs } from '../../utils/song'
+import { getSearchResults, selectedSongs, setSearchTerm } from '../../utils/song'
 import backArrow from '../../assets/back_button.svg'
 import Socials from '../../components/Socials'
 import SongCardMobile from '../../components/SongCard/SongCardMobile'
@@ -17,9 +17,8 @@ const Submit: Component = () => {
     if (!isAuthenticated()) {
       const navigate = useNavigate()
       navigate('/')
-    } else {
-      getSearchResults()
-    }
+    } 
+    setSearchTerm('')
   })
 
   const renderSongs = (idx: number, song: Song | null) => {

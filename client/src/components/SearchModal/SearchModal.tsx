@@ -1,4 +1,4 @@
-import { Component, createEffect, For } from 'solid-js'
+import { Component, createEffect, For, onMount, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import debouncer from '../../utils/debounce'
 import {
@@ -6,6 +6,7 @@ import {
   searchResults,
   searchTerm,
   setSearchTerm,
+  selectedSongs,
 } from '../../utils/song'
 import SearchResult from '../SearchResults/SearchResults'
 
@@ -13,7 +14,9 @@ import './SearchModal.css'
 
 const openModal = () => {
   const modal = document.querySelector('#modal')
+  const searchInput = document.querySelector('#searchInput') as HTMLInputElement
   modal.classList.remove('hidden')
+  searchInput.focus()
 }
 
 const closeModal = () => {
@@ -22,6 +25,7 @@ const closeModal = () => {
 }
 
 const SearchModal: Component = () => {
+
   const debounceSearch = debouncer(getSearchResults, 300)
 
   createEffect(() => {
@@ -57,6 +61,7 @@ const SearchModal: Component = () => {
                 <div class='text-[1.5rem] input-text mt-2'>Search Songs:</div>
                 <input
                   value={searchTerm()}
+                  id='searchInput'
                   class='w-full rounded-md bg-base py-3 pl-10 outline-none mb-2'
                   placeholder='Song Name, Ex: High On Life'
                   onInput={(e) => setSearchTerm((e.target as any).value)} // HACK: Change any to suitable datatype
@@ -65,7 +70,24 @@ const SearchModal: Component = () => {
 
               <div class='flex flex-col items-center p-2 rounded-lg shadow-md w-full overflow-x-hidden overflow-y-scroll max-h-[50vh] scrollbar'>
                 <For each={searchResults()}>
-                  {(song: Song) => <SearchResult song={song} />}
+                  {(song: Song) => {
+                    const selectedIds = selectedSongs()
+                      .filter((selectedSong) => selectedSong !== null)
+                      .map((selectedSong) => selectedSong.id)
+                    if (!selectedIds.includes(song.id)) {
+                      return <SearchResult song={song} />
+                    }
+                  }}
+                </For>
+                <For each={searchResults()}>
+                  {(song: Song) => {
+                    const selectedIds = selectedSongs()
+                      .filter((selectedSong) => selectedSong !== null)
+                      .map((selectedSong) => selectedSong.id)
+                    if (!selectedIds.includes(song.id)) {
+                      return <SearchResult song={song} />
+                    }
+                  }}
                 </For>
               </div>
             </div>

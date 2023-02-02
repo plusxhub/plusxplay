@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -44,14 +43,14 @@ func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_tok
 	}
 	defer spotifyResp.Body.Close()
 
-	bodyBytes, err := io.ReadAll(spotifyResp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bodyString := string(bodyBytes)
-	log.Println("Response from spotify", bodyString)
-	
-	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	// bodyBytes, err := io.ReadAll(spotifyResp.Body)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// bodyString := string(bodyBytes)
+	// log.Println("Response from spotify", bodyString)
+	//
+	// spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
 		//TODO: Use the error model to send the required error.
@@ -134,7 +133,12 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 func SearchTracks(accessToken, query string, limit int) (*[]models.SpotifyTrack, error) {
 
 	var spotifySearchResponse models.SpotifySearchResponse
-	endpoint := fmt.Sprintf("search?type=track&limit=%d&q=%s", limit, strings.ReplaceAll(query, " ", "+"))
+	endpoint := fmt.Sprintf(
+		"search?type=track&limit=%d&q=%s&min_danceability=%f",
+		limit,
+		strings.ReplaceAll(query, " ", "+"),
+		0.15,
+	)
 	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
 		return nil, err
 	}
@@ -142,6 +146,31 @@ func SearchTracks(accessToken, query string, limit int) (*[]models.SpotifyTrack,
 	var tracks []models.SpotifyTrack
 
 	for _, item := range spotifySearchResponse.Tracks.Items {
+		track := models.SpotifyTrack{
+			ID:          item.ID,
+			Name:        item.Name,
+			Artists:     getSpotifyArtists(item.Artists),
+			ReleaseDate: item.Album.ReleaseDate,
+			Image:       item.Album.Images[1].URL,
+			PreviewURL:  item.PreviewURL,
+		}
+		tracks = append(tracks, track)
+	}
+
+	return &tracks, nil
+}
+
+func GetRecommendedTracks(accessToken string, limit int) (*[]models.SpotifyTrack, error) {
+
+	var spotifySearchResponse models.SpotifyRecommendationsResponse
+	endpoint := fmt.Sprintf("recommendations?limit=%d&seed_tracks=%s", limit, "4ut5G4rgB1ClpMTMfjoIuy")
+	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
+		return nil, err
+	}
+
+	var tracks []models.SpotifyTrack
+
+	for _, item := range spotifySearchResponse.Tracks {
 		track := models.SpotifyTrack{
 			ID:          item.ID,
 			Name:        item.Name,
@@ -188,7 +217,7 @@ func SetPlaylist(accessToken string, songIDs []string) error {
 
 	var spotifyAddResponse models.SpotifyUpdatePlaylistItemsResponse
 
-  log.Println("Setting playlist")
+	log.Println("Setting playlist")
 
 	requestBody := struct {
 		Uris []string `json:"uris"`
@@ -200,7 +229,7 @@ func SetPlaylist(accessToken string, songIDs []string) error {
 
 	jsonValue, _ := json.Marshal(requestBody)
 
-  log.Println("Request payload", string(jsonValue))
+	log.Println("Request payload", string(jsonValue))
 
 	endpoint := fmt.Sprintf("playlists/%s/tracks", models.Config.Spotify.TargetPlaylist)
 	if err := ExecuteSpotifyRequest(endpoint, http.MethodPost, &jsonValue, accessToken, &spotifyAddResponse); err != nil {

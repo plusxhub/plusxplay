@@ -27,7 +27,7 @@ const [selectedSongs, setSelectedSongs] = createSignal<Song[]>(
   selectedSongsLocalParsed
 )
 
-const [searchTerm, setSearchTerm] = createSignal('')
+const [searchTerm, setSearchTerm] = createSignal(null)
 
 const truncateString = (originalString: string, maxLength: number) => {
   let truncatedString: string
@@ -41,15 +41,24 @@ const truncateString = (originalString: string, maxLength: number) => {
 }
 
 const getSearchResults = () => {
-  if (searchTerm() === '') {
-    setSearchResults([] as Song[])
+  if (searchTerm() === null) {
     return
   }
+
+  let endpoint: string
+  let params: object
+  if (searchTerm() === '') {
+    endpoint = '/spotify/recommend'
+  } else {
+    endpoint = '/spotify/search'
+    params = {
+      query: searchTerm(),
+    }
+  }
+
   axios
-    .get(API_URL + '/spotify/search', {
-      params: {
-        query: searchTerm(),
-      },
+    .get(API_URL + endpoint, {
+      params: params,
       withCredentials: true,
     })
     .then(({ data }) => {

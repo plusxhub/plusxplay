@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/milindmadhukar/plusxplay/handlers"
-	"github.com/milindmadhukar/plusxplay/models"
 )
 
 // Function to handle routes
@@ -49,7 +48,12 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 	spotifyRouter := chi.NewRouter()
 	spotifyRouter.Get("/search",
 		handlers.SpotifySearchHandler(
-			models.Config.API.JWTSecretKey,
+			s.Queries,
+		),
+	)
+
+	spotifyRouter.Get("/recommend",
+		handlers.SpotifyRecommendationsHandler(
 			s.Queries,
 		),
 	)
@@ -57,7 +61,6 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 	spotifyRouter.Get("/playlist/{userSpotifyId}",
 		handlers.GetUserPlaylistHandler(s.Queries),
 	)
-
 
 	spotifyRouter.Get("/playlist/set/{userSpotifyId}",
 		handlers.SetPlaylistHandler(s.Queries),
