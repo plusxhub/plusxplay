@@ -18,7 +18,7 @@ const App: Component = () => {
           <Route path='/submitted' element={<Submitted />} />
           <Route path='/info' element={<Info />} />
           <Route path='/admin' element={<Admin />} />
-          <Route path='/admin/login' element={<AdminLogin />} />
+          <Route path='/adminlogin' element={<AdminLogin />} />
         </Routes>
     </div>
   )
