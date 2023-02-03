@@ -10,11 +10,14 @@ const Submitted: Component = () => {
   })
 
   return (
-    <div class='flex justify-center items-center min-h-[100vh] overflow-x-hidden'>
+    <div
+      class='flex justify-center items-center overflow-x-hidden'
+      style={{ height: window.innerHeight + 'px' }}
+    >
       <div class='flex flex-col my-[7vh] md:my-0 lg:my-0 bg-white rounded-xl items-center min-h-[85vh] w-[90vw] p-4 relative'>
         Submitted! This page is a todo still :(
       </div>
-      <canvas id='confettiCanvas' class="absolute top-0 left-0"/>
+      <canvas id='confettiCanvas' class='absolute top-0 left-0' />
     </div>
   )
 }

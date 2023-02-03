@@ -4,6 +4,7 @@ import Admin from './pages/Admin/Admin'
 import AdminLogin from './pages/Admin/AdminLogin'
 import Home from './pages/Home/Home'
 import Info from './pages/Info/Info'
+import NotFound from './pages/NotFoundPage'
 import Submit from './pages/Submit/Submit'
 import Submitted from './pages/Submit/Submitted'
 
@@ -11,6 +12,7 @@ const App: Component = () => {
   return (
     <div class='bggradient'>
         <Routes>
+          <Route path='*' element={<NotFound />} />
           <Route path='/' element={<Home />} />
           <Route path='/submit' element={<Submit />} />
           <Route path='/submitted' element={<Submitted />} />
