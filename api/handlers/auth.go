@@ -8,6 +8,7 @@ import (
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
 	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
 
@@ -50,6 +51,8 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 			return
 		}
 
+		log.Info().Msg("Callback for user: " + spotifyUser.ID)
+
 		user, err := queries.CreateOrUpdateUser(
 			r.Context(),
 			db.CreateOrUpdateUserParams{
@@ -64,6 +67,8 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
+
+    log.Info().Msg("Created or updated user: " + spotifyUser.ID)
 
 		now := time.Now().UTC()
 
@@ -91,6 +96,8 @@ func CallbackHandler(queries *db.Queries, oauthConf *oauth2.Config) http.Handler
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
+
+    log.Info().Msg("Set the JWT Cookie for the token.")
 
 		http.Redirect(w, r, models.Config.API.FrontendUrl, http.StatusFound)
 	}

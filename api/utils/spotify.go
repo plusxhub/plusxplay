@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -16,6 +16,7 @@ import (
 
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
 	"github.com/milindmadhukar/plusxplay/models"
+	"github.com/rs/zerolog/log"
 )
 
 const baseURL = "https://api.spotify.com/v1/"
@@ -43,14 +44,14 @@ func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_tok
 	}
 	defer spotifyResp.Body.Close()
 
-	// bodyBytes, err := io.ReadAll(spotifyResp.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// bodyString := string(bodyBytes)
-	// log.Println("Response from spotify", bodyString)
-	//
-	// spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	bodyBytes, err := io.ReadAll(spotifyResp.Body)
+	if err != nil {
+		log.Warn().Msg(err.Error())
+	}
+	bodyString := string(bodyBytes)
+	log.Info().Msg("Response from Spotify: " + bodyString)
+
+	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) 
 
 	if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
 		//TODO: Use the error model to send the required error.
@@ -106,7 +107,7 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 	}
 
 	if time.Now().UTC().After(token.ExpiresAt) {
-		log.Println("Refreshing token")
+		log.Info().Msg("Refreshing token for: " + spotifyId)
 		updateParams, err := RefreshSpotifyToken(token.RefreshToken)
 		if err != nil {
 			return nil, err
@@ -217,8 +218,6 @@ func SetPlaylist(accessToken string, songIDs []string) error {
 
 	var spotifyAddResponse models.SpotifyUpdatePlaylistItemsResponse
 
-	log.Println("Setting playlist")
-
 	requestBody := struct {
 		Uris []string `json:"uris"`
 	}{}
@@ -228,8 +227,6 @@ func SetPlaylist(accessToken string, songIDs []string) error {
 	}
 
 	jsonValue, _ := json.Marshal(requestBody)
-
-	log.Println("Request payload", string(jsonValue))
 
 	endpoint := fmt.Sprintf("playlists/%s/tracks", models.Config.Spotify.TargetPlaylist)
 	if err := ExecuteSpotifyRequest(endpoint, http.MethodPost, &jsonValue, accessToken, &spotifyAddResponse); err != nil {
@@ -275,8 +272,6 @@ func clearPlaylistSongs(accessToken string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println(spotifyDeleteResponse)
 
 	return nil
 }

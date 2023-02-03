@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
 	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
+	"github.com/rs/zerolog/log"
 )
 
 func SubmitPlaylistHandlers(queries *db.Queries) http.HandlerFunc {
@@ -16,13 +16,13 @@ func SubmitPlaylistHandlers(queries *db.Queries) http.HandlerFunc {
 		var submission models.Submission
 		var resp map[string]interface{} = make(map[string]interface{})
 
-    jwtTokenCookie, err := r.Cookie("token")
+		jwtTokenCookie, err := r.Cookie("token")
 
-    if err != nil {
-      resp["error"] = "No token found"
-      utils.JSON(w, http.StatusUnauthorized, resp)
-      return
-    }
+		if err != nil {
+			resp["error"] = "No token found"
+			utils.JSON(w, http.StatusUnauthorized, resp)
+			return
+		}
 
 		spotifyId, errMsg, status := utils.GetSpotifyUserIDFromJWT(jwtTokenCookie.Value)
 		if errMsg != "" {
@@ -44,7 +44,9 @@ func SubmitPlaylistHandlers(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
-    playlist, err := queries.CreateOrUpdatePlaylist(r.Context(), db.CreateOrUpdatePlaylistParams{
+		log.Info().Msg(spotifyId + " submitted a playlist")
+
+		_, err = queries.CreateOrUpdatePlaylist(r.Context(), db.CreateOrUpdatePlaylistParams{
 			SpotifyUserID: spotifyId,
 			Choice1:       submission.SelectedSongs[0].ID,
 			Choice2:       submission.SelectedSongs[1].ID,
@@ -60,16 +62,13 @@ func SubmitPlaylistHandlers(queries *db.Queries) http.HandlerFunc {
 			UpdatedAt:     time.Now(),
 		})
 
-    if err != nil {
+		if err != nil {
 			resp["msg"] = "Couldn't update the playlist"
-      resp["err"] = err.Error()
+			resp["err"] = err.Error()
 
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
-    }
-  
-    log.Println("Playlist is: ", playlist)
-
+		}
 
 		utils.JSON(w, http.StatusOK, resp)
 	}

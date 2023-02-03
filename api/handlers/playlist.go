@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
 	"github.com/milindmadhukar/plusxplay/utils"
+  	"github.com/rs/zerolog/log"
 )
 
 func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
@@ -31,6 +32,7 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = "Error getting spotify token"
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -45,6 +47,7 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 		playlist, err := queries.GetPlaylist(r.Context(), userSpotifyID)
 		if err != nil {
 			resp["error"] = err.Error()
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -55,9 +58,12 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = err.Error()
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
+
+
 
 		utils.JSON(w, http.StatusOK, tracks)
 	}
@@ -91,6 +97,7 @@ func SelectRandomUserHandler(queries *db.Queries) http.HandlerFunc {
 		playlist, err := queries.GetRandomPlaylist(r.Context())
 		if err != nil {
 			resp["error"] = err.Error()
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -136,6 +143,7 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = "Error getting spotify token"
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -143,6 +151,7 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 		playlist, err := queries.GetPlaylist(r.Context(), winner)
 		if err != nil {
 			resp["error"] = err.Error()
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -153,6 +162,7 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = err.Error()
+      log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -162,4 +172,4 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 		utils.JSON(w, http.StatusOK, resp)
 
 	}
-} // This just selects a user to redo.
+} 

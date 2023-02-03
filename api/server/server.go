@@ -4,15 +4,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httplog"
 	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 	spotifyOauth "golang.org/x/oauth2/spotify"
 
@@ -22,24 +25,25 @@ import (
 )
 
 type Server struct {
-	Router    *chi.Mux
-	Queries   *db.Queries
-	DB        *sql.DB
-	OauthConf *oauth2.Config
-  AdminOauthConf *oauth2.Config
+	Router         *chi.Mux
+	Queries        *db.Queries
+	DB             *sql.DB
+	OauthConf      *oauth2.Config
+	AdminOauthConf *oauth2.Config
 }
 
 func New() *Server {
 	s := &Server{}
 	configFromFile, err := utils.LoadConfig("./configs", "config", "yml")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
 	models.Config = *configFromFile
 
 	if err := s.PrepareDB(); err != nil {
-		log.Fatal(err.Error())
+		log.Fatal().Msg(err.Error())
 	}
+
 	s.PrepareOauth2()
 	s.PrepareRouter()
 
@@ -54,30 +58,40 @@ func (s *Server) PrepareDB() error {
 	}
 
 	for tries > 0 {
-		log.Println("Attempting to make a connection to the garrix database...")
+		log.Info().Msg("Attempting to make a connection to the garrix database...")
 		err = DB.Ping()
 		if err != nil {
 			tries -= 1
-			log.Println(err, "Could not connect. Retrying...")
+			log.Info().Msg(err.Error() + "\nCould not connect. Retrying...")
 			time.Sleep(8 * time.Second)
 			continue
 		}
 		s.Queries = db.New(DB)
 		s.DB = DB
-		log.Println("Connection to the garrix database established.")
+		log.Info().Msg("Connection to the garrix database established.")
 		return nil
 	}
 	return errors.New("Could not make a connection to the database.")
 }
 
 func (s *Server) PrepareRouter() {
+
 	r := chi.NewRouter()
-	//Use Global Middlewares Here
-	r.Use(middleware.Logger)
+
+	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to open log file")
+	}
+
+	logger := zerolog.New(file).With().Timestamp().Logger()
+	log.Logger = logger
+
+	r.Use(httplog.RequestLogger(logger))
+	r.Use(middleware.Heartbeat("/ping"))
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-    AllowedMethods:   []string{"GET", "OPTIONS", "POST", "PUT", "PATCH"},
+		AllowedMethods:   []string{"GET", "OPTIONS", "POST", "PUT", "PATCH"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "token"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -95,13 +109,13 @@ func (s *Server) PrepareOauth2() {
 		Endpoint:     spotifyOauth.Endpoint,
 	}
 
-  s.AdminOauthConf = &oauth2.Config{
+	s.AdminOauthConf = &oauth2.Config{
 		RedirectURL:  models.Config.Spotify.RedirectURI,
 		ClientID:     models.Config.Spotify.ClientID,
 		ClientSecret: models.Config.Spotify.ClientSecret,
 		Scopes:       []string{"user-read-private", "playlist-modify-public"},
 		Endpoint:     spotifyOauth.Endpoint,
-  }
+	}
 }
 
 func (s *Server) RunServer() (err error) {
@@ -110,10 +124,10 @@ func (s *Server) RunServer() (err error) {
 	s.HandleRoutes(apiRouter)
 	s.Router.Mount("/api", apiRouter)
 
-	log.Printf("Starting Server at %s:%s", models.Config.API.Host, models.Config.API.Port)
+	log.Info().Msg(fmt.Sprintf("Starting Server at %s:%s", models.Config.API.Host, models.Config.API.Port))
 	err = http.ListenAndServe(fmt.Sprintf("%s:%s", models.Config.API.Host, models.Config.API.Port), s.Router)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
 
 	return
