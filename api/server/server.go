@@ -61,6 +61,7 @@ func (s *Server) PrepareLogger() {
 
 	logger := zerolog.New(file).With().Timestamp().Logger()
 	log.Logger = logger
+  s.Logger = logger
 }
 
 func (s *Server) PrepareDB() error {
