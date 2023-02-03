@@ -30,6 +30,7 @@ type Server struct {
 	DB             *sql.DB
 	OauthConf      *oauth2.Config
 	AdminOauthConf *oauth2.Config
+	Logger         zerolog.Logger
 }
 
 func New() *Server {
@@ -40,14 +41,26 @@ func New() *Server {
 	}
 	models.Config = *configFromFile
 
+  s.PrepareLogger()
+
 	if err := s.PrepareDB(); err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-
+  
 	s.PrepareOauth2()
 	s.PrepareRouter()
 
 	return s
+}
+
+func (s *Server) PrepareLogger() {
+	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to open log file")
+	}
+
+	logger := zerolog.New(file).With().Timestamp().Logger()
+	log.Logger = logger
 }
 
 func (s *Server) PrepareDB() error {
@@ -78,15 +91,7 @@ func (s *Server) PrepareRouter() {
 
 	r := chi.NewRouter()
 
-	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open log file")
-	}
-
-	logger := zerolog.New(file).With().Timestamp().Logger()
-	log.Logger = logger
-
-	r.Use(httplog.RequestLogger(logger))
+	r.Use(httplog.RequestLogger(s.Logger))
 	r.Use(middleware.Heartbeat("/ping"))
 
 	r.Use(cors.Handler(cors.Options{
@@ -125,6 +130,7 @@ func (s *Server) RunServer() (err error) {
 	s.Router.Mount("/api", apiRouter)
 
 	log.Info().Msg(fmt.Sprintf("Starting Server at %s:%s", models.Config.API.Host, models.Config.API.Port))
+  fmt.Println("Server is running.")
 	err = http.ListenAndServe(fmt.Sprintf("%s:%s", models.Config.API.Host, models.Config.API.Port), s.Router)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
