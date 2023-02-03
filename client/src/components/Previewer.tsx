@@ -42,7 +42,7 @@ const Previewer: Component<PreviewerProps> = ({ songUrl, idx }) => {
         >
           <img src={pauseButton} class='h-8' />
         </Show>
-        <audio id={'previewer-' + idx} src={songUrl}></audio>
+        <audio preload='auto' id={'previewer-' + idx} src={songUrl}></audio>
       </button>
     </Show>
   )

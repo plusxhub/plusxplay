@@ -1,4 +1,4 @@
-import { Component, Show } from 'solid-js'
+import { Component, createSignal, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import editButton from '../../assets/edit_icon.svg'
 import crossButton from '../../assets/not_allowed.svg'
@@ -15,6 +15,19 @@ interface SongProps {
 }
 
 const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
+  const [isButtonsDisabled, setButtonsDisabled] = createSignal(true)
+
+  const handleButtonFocus = () => {
+    setButtonsDisabled(false)
+  }
+
+  const handleButtonBlur = () => {
+    setButtonsDisabled(true)
+    setTimeout(() => {
+      setButtonsDisabled(false)
+    }, 250)
+  }
+
   return (
     <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full'>
       <Show
@@ -22,7 +35,7 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
         fallback={
           <div
             class='flex h-24 w-full justify-center items-center text-xl song-text'
-            onclick={() => {
+            onClick={() => {
               setActiveSong(idx)
               openModal()
             }}
@@ -55,6 +68,9 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
                 setActiveSong(idx)
                 openModal()
               }}
+              onFocus={handleButtonFocus}
+              onBlur={handleButtonBlur}
+              disabled={isButtonsDisabled()}
             >
               <img src={editButton} class='h-10 px-1' />
             </button>
@@ -62,6 +78,9 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
               onClick={() => {
                 discardSong(idx)
               }}
+              disabled={isButtonsDisabled()}
+              onFocus={handleButtonFocus}
+              onBlur={handleButtonBlur}
             >
               <img src={crossButton} class='h-9 px-1' />
             </button>

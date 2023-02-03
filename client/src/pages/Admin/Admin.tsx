@@ -8,6 +8,7 @@ import axios from 'axios'
 import API_URL from '../../utils/api'
 import { Winner } from '../../types/Winner'
 import { Playlist } from '../../types/Playlist'
+import { User } from '../../types/User'
 
 const Admin: Component = () => {
   onMount(() => {
@@ -39,10 +40,14 @@ const Admin: Component = () => {
           UpdatedAt: data.updatedAt as Date,
         }
 
-        const winner: Winner = {
+        const user: User = {
           SpotifyID: data.spotifyID,
           DisplayName: data.displayName,
-          ImageUrl: data.imageUrl.Valid ? data.imageUrl.String : '',
+          ProfileImageUrl: data.imageUrl.String || '',
+        }
+
+        const winner: Winner = {
+          User: user,
           Playlist: playlist,
         }
 
@@ -56,7 +61,7 @@ const Admin: Component = () => {
   const setWinner = () => {
     axios
       .post(
-        API_URL + '/admin/set-playlist?winner=' + currentWinner().SpotifyID,
+        API_URL + '/admin/set-playlist?winner=' + currentWinner().User.SpotifyID,
         {},
         { withCredentials: true }
       )
@@ -89,10 +94,10 @@ const Admin: Component = () => {
           when={currentWinner() !== null}
           fallback={<div>No winner Selected</div>}
         >
-          CurrentWinner is: {currentWinner().DisplayName} The playlist was last
+          CurrentWinner is: {currentWinner().User.DisplayName} The playlist was last
           updated on {currentWinner().Playlist.UpdatedAt.toString()}
-          <Show when={currentWinner().ImageUrl !== ''}>
-            <img class='my-2' src={currentWinner().ImageUrl} />
+          <Show when={currentWinner().User.ProfileImageUrl !== ''}>
+            <img class='my-2' src={currentWinner().User.ProfileImageUrl} />
           </Show>
         </Show>
 

@@ -125,7 +125,6 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 			} else {
 				resp["error"] = err.Error()
 				respStatus = http.StatusInternalServerError
-
 			}
 			utils.JSON(w, respStatus, resp)
 			return
@@ -147,8 +146,17 @@ func IsAuthenticatedHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
+		user, err := queries.GetUser(r.Context(), spotifyId)
+		if err != nil {
+			resp["error"] = err.Error()
+			resp["is_authenticated"] = false
+			utils.JSON(w, http.StatusInternalServerError, resp)
+			return
+		}
+
 		resp["is_authenticated"] = true
 		resp["is_admin"] = utils.IsAdmin(spotifyId)
+		resp["user"] = user
 		utils.JSON(w, http.StatusOK, resp)
 	}
 }

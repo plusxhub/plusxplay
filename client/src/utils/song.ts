@@ -79,6 +79,7 @@ const discardSong = (idx: number) => {
 export {
   getSearchResults,
   searchResults,
+  setSearchResults,
   truncateString,
   selectedSongs,
   setSelectedSongs,

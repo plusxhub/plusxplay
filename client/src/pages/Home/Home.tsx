@@ -3,6 +3,7 @@ import plusxhubLogo from '../../../src/assets/plusxhub.jpg'
 import infoIcon from '../../../src/assets/info.svg'
 import Hero from '../../components/Hero/Hero'
 import {
+  adminLogin,
   checkAuthenticationStatus,
   isAdmin,
   isAuthenticated,
@@ -78,6 +79,12 @@ const Home: Component = () => {
             <LoginButton />
 
             <Show when={isAdmin()}>
+              <button
+                class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'
+                onClick={adminLogin}
+              >
+                <p class='btnText text-lg lg:text-2xl'>Admin Login</p>
+              </button>
               <a
                 href='/admin'
                 class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'

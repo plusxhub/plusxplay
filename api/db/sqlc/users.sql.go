@@ -53,3 +53,22 @@ func (q *Queries) CreateOrUpdateUser(ctx context.Context, arg CreateOrUpdateUser
 	)
 	return i, err
 }
+
+const getUser = `-- name: GetUser :one
+SELECT spotify_id, display_name, country, image_url, choices FROM users 
+WHERE spotify_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, spotifyID string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, spotifyID)
+	var i User
+	err := row.Scan(
+		&i.SpotifyID,
+		&i.DisplayName,
+		&i.Country,
+		&i.ImageUrl,
+		pq.Array(&i.Choices),
+	)
+	return i, err
+}

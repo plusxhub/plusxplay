@@ -1,7 +1,6 @@
 import { Route, Routes } from 'solid-app-router'
 import { Component } from 'solid-js'
 import Admin from './pages/Admin/Admin'
-import AdminLogin from './pages/Admin/AdminLogin'
 import Home from './pages/Home/Home'
 import Info from './pages/Info/Info'
 import NotFound from './pages/NotFoundPage'
@@ -18,7 +17,6 @@ const App: Component = () => {
           <Route path='/submitted' element={<Submitted />} />
           <Route path='/info' element={<Info />} />
           <Route path='/admin' element={<Admin />} />
-          <Route path='/adminlogin' element={<AdminLogin />} />
         </Routes>
     </div>
   )

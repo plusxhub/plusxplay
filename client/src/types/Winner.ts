@@ -1,8 +1,7 @@
 import { Playlist } from "./Playlist"
+import { User } from "./User"
 
 export type Winner = {
-  SpotifyID: string
-  DisplayName: string
-  ImageUrl: string
+  User: User
   Playlist: Playlist
 }

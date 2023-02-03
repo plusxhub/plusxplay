@@ -1,11 +1,11 @@
 import { useNavigate } from 'solid-app-router'
 import { Component, For, onMount, Show } from 'solid-js'
 import { Song } from '../../types/Song'
-import { isAuthenticated } from '../../utils/login'
+import { currentUser, isAuthenticated } from '../../utils/login'
 import {
-  getSearchResults,
   selectedSongs,
   setSearchTerm,
+  setSelectedSongs,
 } from '../../utils/song'
 import backArrow from '../../assets/back_button.svg'
 import Socials from '../../components/Socials'
@@ -19,7 +19,7 @@ const Submit: Component = () => {
   const navigate = useNavigate()
 
   onMount(() => {
-    // BUG: Navigating me back even when authenticated on refresh
+    console.log(isAuthenticated())
     if (!isAuthenticated()) {
       const navigate = useNavigate()
       navigate('/')
@@ -62,7 +62,7 @@ const Submit: Component = () => {
   return (
     <div class='flex justify-center items-center min-h-[100vh] overflow-x-hidden'>
       <div class='flex flex-col my-[7vh] md:my-0 lg:my-0 bg-white rounded-xl items-center min-h-[85vh] w-[90vw] p-4 relative'>
-        <div class='flex w-full justify-between my-1 2xl:mb-4 lg:mb-8'>
+        <div class='flex w-full justify-between items-center my-1 2xl:mb-4 lg:mb-8 relative'>
           <a href='/'>
             <img
               src={backArrow}
@@ -70,6 +70,12 @@ const Submit: Component = () => {
               class='top-4 left-4 h-[4vh] lg:h-[5vh]'
             />
           </a>
+          <p
+            style={{ 'font-family': 'Russo One' }}
+            class='text-md lg:text-xl px-2'
+          >
+            Welcome, {currentUser()?.DisplayName}!
+          </p>
           <Socials />
         </div>
         <SearchModal />
@@ -78,25 +84,38 @@ const Submit: Component = () => {
             {(song: Song | null, idx) => renderSongs(idx(), song)}
           </For>
         </div>
-        <Show
-          when={selectedSongs().filter((val) => val === null).length === 0}
-          fallback={
+        <div class='flex'>
+          <Show
+            when={selectedSongs().filter((val) => val === null).length === 0}
+            fallback={
+              <button
+                disabled
+                class='text-white bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2  dark:focus:ring-gray-700 dark:border-gray-700 mt-3 hover:cursor-not-allowed'
+              >
+                Select another{' '}
+                {selectedSongs().filter((val) => val === null).length === 1
+                  ? '1 song'
+                  : `${selectedSongs().filter((val) => val === null).length
+                  } songs`}
+              </button>
+            }
+          >
             <button
-              disabled
-              class='text-white bg-gray-500 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2  dark:focus:ring-gray-700 dark:border-gray-700 mt-3 hover:cursor-not-allowed'
+              class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-3'
+              onClick={handleSubmission}
             >
-              Select another{' '}
-              {selectedSongs().filter((val) => val === null).length} songs
+              Submit
             </button>
-          }
-        >
+          </Show>
           <button
             class='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-3'
-            onClick={handleSubmission}
+            onClick={() =>
+              setSelectedSongs(new Array<Song | null>(10).fill(null))
+            }
           >
-            Submit
+            Clear Playlist
           </button>
-        </Show>
+        </div>
       </div>
     </div>
   )

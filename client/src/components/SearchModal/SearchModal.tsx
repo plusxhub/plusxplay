@@ -1,4 +1,4 @@
-import { Component, createEffect, For, onMount, Show } from 'solid-js'
+import { Component, createEffect, For} from 'solid-js'
 import { Song } from '../../types/Song'
 import debouncer from '../../utils/debounce'
 import {
@@ -69,16 +69,6 @@ const SearchModal: Component = () => {
               </div>
 
               <div class='flex flex-col items-center p-2 rounded-lg shadow-md w-full overflow-x-hidden overflow-y-scroll max-h-[50vh] scrollbar'>
-                <For each={searchResults()}>
-                  {(song: Song) => {
-                    const selectedIds = selectedSongs()
-                      .filter((selectedSong) => selectedSong !== null)
-                      .map((selectedSong) => selectedSong.id)
-                    if (!selectedIds.includes(song.id)) {
-                      return <SearchResult song={song} />
-                    }
-                  }}
-                </For>
                 <For each={searchResults()}>
                   {(song: Song) => {
                     const selectedIds = selectedSongs()

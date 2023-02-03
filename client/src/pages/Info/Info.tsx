@@ -11,7 +11,6 @@ const Info: Component = () => {
       class='flex justify-center items-center'
       style={{ height: window.innerHeight + 'px' }}
     >
-      {/* TODO: Add the flat logo */}
       <div class='flex flex-col bg-white rounded-xl justify-center min-h-[85vh] w-[90vw] p-8 relative'>
         <span class='absolute top-4 right-4'>
           <Socials />

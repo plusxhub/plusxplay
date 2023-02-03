@@ -2,7 +2,9 @@ import { Component } from 'solid-js'
 import { Song } from '../../types/Song'
 import {
   activeSong,
+  searchResults,
   selectedSongs,
+  setSearchResults,
   setSearchTerm,
   setSelectedSongs,
   truncateString,
@@ -14,6 +16,15 @@ interface SearchResultProps {
 }
 
 const handleResultClick = (song: Song) => {
+  const selectedIds = selectedSongs()
+    .filter((selectedSong) => selectedSong !== null)
+    .map((selectedSong) => selectedSong.id)
+  if (selectedIds.includes(song.id)) {
+    console.log('Chosen previously')
+    closeModal()
+    return // HACK: Add a message to why no same songs
+
+  }
   const songs = selectedSongs()
   songs[activeSong()] = song
   setSelectedSongs([...songs])
@@ -41,10 +52,9 @@ const SearchResult: Component<SearchResultProps> = ({ song }) => {
           {truncateString(song.name, 24)}
         </p>
         <p class='font-medium hidden lg:block'>
-          {truncateString(song.name, 40)}  {/* BUG: Fix for md devices */}
-
+          {truncateString(song.name, 40)} {/* BUG: Fix for md devices */}
         </p>
-        <p class='text-gray-600 text-sm'>{truncateString(artists,30)}</p>
+        <p class='text-gray-600 text-sm'>{truncateString(artists, 30)}</p>
       </div>
     </a>
   )
