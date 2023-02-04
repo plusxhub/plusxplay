@@ -54,7 +54,7 @@ func SetJWTOnCookie(spotifyUserID string, tokenExpiry, now time.Time, w http.Res
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"spotify_id": spotifyUserID,
-		"exp":        time.Now().UTC().Add(time.Hour * 24 * 15),
+		"exp":        time.Now().UTC().Add(time.Hour * 24 * 15).Unix(),
 		"iat":        now.Unix(),
 	})
 
