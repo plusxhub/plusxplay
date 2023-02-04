@@ -120,11 +120,6 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 		if err != nil {
 			return nil, err
 		}
-
-		err = SetJWTOnCookie(token.SpotifyUserID, token.ExpiresAt.UTC(), time.Now().UTC(), w)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return &token, nil

@@ -54,7 +54,7 @@ func SetJWTOnCookie(spotifyUserID string, tokenExpiry, now time.Time, w http.Res
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"spotify_id": spotifyUserID,
-		"exp":        tokenExpiry.Unix(),
+		"exp":        time.Now().UTC().Add(time.Hour * 24 * 15),
 		"iat":        now.Unix(),
 	})
 
@@ -74,9 +74,7 @@ func SetJWTOnCookie(spotifyUserID string, tokenExpiry, now time.Time, w http.Res
 	})
 
 	return nil
-
 }
-
 
 func GetTokenJWT(spotifyUserID string, tokenExpiry, now time.Time, w http.ResponseWriter) (string, error) {
 
@@ -90,7 +88,7 @@ func GetTokenJWT(spotifyUserID string, tokenExpiry, now time.Time, w http.Respon
 	if err != nil {
 		return "", err
 	}
-  
+
 	return signedToken, nil
 
 }
