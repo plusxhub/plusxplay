@@ -159,7 +159,7 @@ func SearchTracks(accessToken, query string, limit int) (*[]models.SpotifyTrack,
 func GetRecommendedTracks(accessToken string, limit int) (*[]models.SpotifyTrack, error) {
 
 	var spotifySearchResponse models.SpotifyRecommendationsResponse
-	endpoint := fmt.Sprintf("recommendations?limit=%d&seed_tracks=%s", limit, "4ut5G4rgB1ClpMTMfjoIuy")
+	endpoint := fmt.Sprintf("recommendations?limit=%d&seed_artists=%s", limit, "60d24wfXkVzDSfLS6hyCjZ")
 	if err := ExecuteSpotifyRequest(endpoint, http.MethodGet, nil, accessToken, &spotifySearchResponse); err != nil {
 		return nil, err
 	}
