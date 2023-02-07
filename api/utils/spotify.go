@@ -118,10 +118,12 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 			return nil, err
 		}
 		updateParams.SpotifyUserID = spotifyId
+
 		token, err = queries.CreateOrUpdateSpotifyTokens(
 			ctx,
 			*updateParams,
 		)
+
 		if err != nil {
 			return nil, err
 		}
