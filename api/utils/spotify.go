@@ -35,6 +35,7 @@ func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_tok
 	if err != nil {
 		return err
 	}
+
 	req.Header.Add("Authorization", "Bearer "+access_token)
 	req.Header.Add("Content-Type", "application/json")
 
@@ -84,6 +85,10 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 	if err := json.NewDecoder(spotifyResp.Body).Decode(&spotifyRespBody); err != nil {
 		return nil, err
 	}
+
+  if spotifyRespBody.AccessToken == "" || spotifyRespBody.RefreshToken == "" || spotifyRespBody.TokenType == "" {
+    return nil, errors.New("Access Tokens/ Refresh Token/ Token Type was not recieved from Spotify.")
+  }
 
 	return &db.CreateOrUpdateSpotifyTokensParams{
 		CreatedAt:    time.Now().UTC(),
