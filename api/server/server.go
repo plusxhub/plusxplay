@@ -128,7 +128,7 @@ func (s *Server) RunServer() (err error) {
 
 	apiRouter := chi.NewRouter()
 	s.HandleRoutes(apiRouter)
-	s.Router.Mount("/api", apiRouter)
+	s.Router.Mount("/", apiRouter)
 
 	log.Info().Msg(fmt.Sprintf("Starting Server at %s:%s", models.Config.API.Host, models.Config.API.Port))
   fmt.Println("Server is running.")

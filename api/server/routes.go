@@ -9,11 +9,14 @@ import (
 
 // Function to handle routes
 func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
-	mainRouter.Get("/", func(w http.ResponseWriter, r *http.Request) {
+
+  plusxplayRouter := chi.NewRouter()
+	plusxplayRouter.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("PlusXPlay API!"))
 	})
 
 	authRouter := chi.NewRouter()
+
 	authRouter.Get(
 		"/url",
 		handlers.GetAuthURLHandler(
@@ -73,15 +76,17 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		),
 	)
 
-	spotifyRouter.Get("/playlist/{userSpotifyId}",
+	plusxplayRouter.Get("/playlist/{userSpotifyId}",
 		handlers.GetUserPlaylistHandler(s.Queries),
 	)
 
-	mainRouter.Post("/submit-playlist",
+	plusxplayRouter.Post("/submit-playlist",
 		handlers.SubmitPlaylistHandlers(s.Queries),
 	)
 
-	mainRouter.Mount("/auth", authRouter)
-	mainRouter.Mount("/admin", adminRouter)
-	mainRouter.Mount("/spotify", spotifyRouter)
+	plusxplayRouter.Mount("/auth", authRouter)
+	plusxplayRouter.Mount("/admin", adminRouter)
+	plusxplayRouter.Mount("/spotify", spotifyRouter)
+
+  mainRouter.Mount("/plusxplay", plusxplayRouter)
 }
