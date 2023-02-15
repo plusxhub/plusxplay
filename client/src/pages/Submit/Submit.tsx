@@ -71,13 +71,8 @@ const Submit: Component = () => {
             />
           </a>
           <p
-            style={{ 'font-family': 'Russo One' }}
-            class='text-md lg:text-xl px-2'
-          >
-            Welcome, {currentUser()?.DisplayName}!
-          </p>
-          <Socials />
-        </div>
+            style={{ 'font-family': 'Russo One' }} class='text-md lg:text-xl px-2' > Welcome, {currentUser()?.DisplayName}! </p>
+          <Socials /> </div>
         <SearchModal />
         <div class='lg:grid md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-1 justify-center items-center w-full'>
           <For each={selectedSongs()}>

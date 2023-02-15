@@ -2,6 +2,7 @@ import { Component, createSignal, Show } from 'solid-js'
 import { Song } from '../../types/Song'
 import editButton from '../../assets/edit_icon.svg'
 import crossButton from '../../assets/not_allowed.svg'
+import whiteSpotify from '../../assets/spotify_white.svg'
 
 import { discardSong, setActiveSong, truncateString } from '../../utils/song'
 import Previewer from '../Previewer'
@@ -15,24 +16,11 @@ interface SongProps {
 }
 
 const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
-  const [isButtonsDisabled, setButtonsDisabled] = createSignal(true)
-
-  const handleButtonFocus = () => {
-    setButtonsDisabled(false)
-  }
-
-  const handleButtonBlur = () => {
-    setButtonsDisabled(true)
-    setTimeout(() => {
-      setButtonsDisabled(false)
-    }, 250)
-  }
-
   return (
-    <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full'>
-      <Show
-        when={song !== null}
-        fallback={
+    <Show
+      when={song !== null}
+      fallback={
+        <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full my-1'>
           <div
             class='flex h-24 w-full justify-center items-center text-xl song-text'
             onClick={() => {
@@ -42,9 +30,15 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
           >
             <p>Select Song {idx + 1}</p>
           </div>
-        }
-      >
+        </div>
+      }
+    >
+
+      <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full my-1 bg-gray-800'>
         <div class='flex justify-center items-center relative w-full'>
+          <a href={`https://open.spotify.com/track/${song.id}`} target="_blank">
+            <img src={whiteSpotify} class="absolute top-2 right-2 w-5" />
+          </a>
           <img
             src={song.image}
             alt={song.name}
@@ -52,42 +46,36 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
           />
 
           <div class='w-full'>
-            <p class='font-medium'>{truncateString(song.name, 18)}</p>
-            <p class='text-gray-600 text-sm'>
+            <p class='font-medium text-white font-[Urbanist]'>{truncateString(song.name, 25)}</p>
+            <p class='text-gray-400 text-sm'>
               {truncateString(
                 song.artists.map((artist) => artist.name).join(', '),
                 30
               )}
             </p>
-            <p class='text-gray-600 text-sm'>{song.release_date}</p>
-          </div>
-          <div class='absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center text-white bg-gray-900 opacity-0 hover:opacity-100 transition duration-200 song-text rounded-lg'>
-            <Previewer songUrl={song.preview_url} idx={idx} />
-            <button
-              onClick={() => {
-                setActiveSong(idx)
-                openModal()
-              }}
-              onFocus={handleButtonFocus}
-              onBlur={handleButtonBlur}
-              disabled={isButtonsDisabled()}
-            >
-              <img src={editButton} class='h-10 px-1' />
-            </button>
-            <button
-              onClick={() => {
-                discardSong(idx)
-              }}
-              disabled={isButtonsDisabled()}
-              onFocus={handleButtonFocus}
-              onBlur={handleButtonBlur}
-            >
-              <img src={crossButton} class='h-9 px-1' />
-            </button>
+            <p class='text-gray-400 text-sm'>{song.release_date}</p>
+            <div class="flex mt-2 mb-1">
+              <Previewer songUrl={song.preview_url} idx={idx} />
+              <button
+                onClick={() => {
+                  setActiveSong(idx)
+                  openModal()
+                }}
+              >
+                <img src={editButton} class='h-9 px-1' />
+              </button>
+              <button
+                onClick={() => {
+                  discardSong(idx)
+                }}
+              >
+                <img src={crossButton} class='h-8 px-1' />
+              </button>
+            </div>
           </div>
         </div>
-      </Show>
-    </div>
+      </div>
+    </Show>
   )
 }
 

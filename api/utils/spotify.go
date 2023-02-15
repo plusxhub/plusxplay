@@ -52,7 +52,7 @@ func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_tok
 	bodyString := string(bodyBytes)
 	log.Info().Msg("Response from Spotify: " + bodyString)
 
-	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes)) 
+	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
 	if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
 		//TODO: Use the error model to send the required error.
@@ -73,6 +73,7 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	spotifyResp, err := http.DefaultClient.Do(req)
@@ -81,13 +82,28 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 	}
 	defer spotifyResp.Body.Close()
 
+	// bodyBytes, err := io.ReadAll(spotifyResp.Body)
+	// if err != nil {
+	// 	log.Warn().Msg(err.Error())
+	// }
+	// bodyString := string(bodyBytes)
+	// fmt.Println("Refresh response from Spotify: " + bodyString)
+	//
+	// spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
 	var spotifyRespBody models.SpotifyAuthResponse
 	if err := json.NewDecoder(spotifyResp.Body).Decode(&spotifyRespBody); err != nil {
 		return nil, err
 	}
 
-  if spotifyRespBody.AccessToken == "" || spotifyRespBody.RefreshToken == "" || spotifyRespBody.TokenType == "" {
-    return nil, errors.New("Access Tokens/ Refresh Token/ Token Type was not recieved from Spotify.")
+  fmt.Println(spotifyRespBody.AccessToken == "", spotifyRespBody.RefreshToken == "", spotifyRespBody.TokenType == "")
+
+	if spotifyRespBody.AccessToken == "" || spotifyRespBody.TokenType == "" {
+		return nil, errors.New("Access Tokens/ Token Type was not recieved from Spotify.")
+	}
+  
+  if spotifyRespBody.RefreshToken == "" {
+    spotifyRespBody.RefreshToken = refresh_token
   }
 
 	return &db.CreateOrUpdateSpotifyTokensParams{
@@ -112,7 +128,11 @@ func GetOrUpdateSpotifyToken(spotifyId string, queries *db.Queries, ctx context.
 	}
 
 	if time.Now().UTC().After(token.ExpiresAt) {
-		log.Info().Msg("Refreshing token for: " + spotifyId)
+		if token.RefreshToken == "" {
+			log.Warn().Msg("Refresh token is empty.")
+			return nil, errors.New("Refresh token is empty.")
+		}
+
 		updateParams, err := RefreshSpotifyToken(token.RefreshToken)
 		if err != nil {
 			return nil, err
