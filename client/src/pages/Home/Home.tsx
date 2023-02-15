@@ -43,7 +43,7 @@ const Home: Component = () => {
     <div
       class='flex justify-center items-center overflow-y-hidden'
       id="main"
-      style={{ height: window.innerHeight - 1 + 'px' }}
+      style={{ height: window.innerHeight + 'px' }}
     >
       <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] max-h-[85vh] w-[90vw] p-1 relative'>
         <span class='absolute top-4 right-4'>

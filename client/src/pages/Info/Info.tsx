@@ -10,14 +10,15 @@ const Info: Component = () => {
     window.addEventListener('resize', function() {
       // Update the height of the box element to the new window height
       const main = document.getElementById('main');
-      main.style.height = window.innerHeight -1 + 'px';
+      main.style.height = window.innerHeight + 'px';
     });
   })
   return (
     <div
       class='flex justify-center items-center'
-            id="main"
+                  id="main"
 
+            
       
       style={{ height: window.innerHeight + 'px' }}
     >

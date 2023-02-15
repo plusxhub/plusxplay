@@ -42,21 +42,17 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
           <img
             src={song.image}
             alt={song.name}
-            class='w-28 h-28 rounded-lg ml-2 mr-6 object-contain'
+            class='w-28 h-28 rounded-lg ml-2 mr-4 object-contain'
           />
 
           <div class='w-full'>
-            <p class='font-medium text-lg text-white font-[Urbanist]'>{truncateString(song.name, 25)}</p>
+            <a href={`https://open.spotify.com/track/${song.id}`} target="_blank" class='font-medium text-md text-white font-[Urbanist]'>{truncateString(song.name, 16)}</a>
             <span class="flex self-start">
-              {
-                song.artists.map((artist, index) => (
-                  <a href={`https://open.spotify.com/artist/${artist.id}`} class="font-[Urbanist] font-medium">
-                    <p class='text-gray-400 text-md font-medium'>
-                      {artist.name}{index !== song.artists.length - 1 ? ',' : ''}&nbsp
-                    </p>
-                  </a>
-                ))
-              }
+              <a href={`https://open.spotify.com/artist/${song.artists[0].id}`} class="font-[Urbanist] font-medium">
+                <p class='text-gray-400 text-md font-medium'>
+                  {song.artists[0].name}
+                </p>
+              </a>
             </span>
             <p class='text-gray-400 text-md font-[Urbanist]'>{song.release_date}</p>
             <div class="flex mt-2 mb-1">
