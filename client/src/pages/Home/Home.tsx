@@ -31,7 +31,7 @@ const Home: Component = () => {
     window.addEventListener('resize', function() {
       // Update the height of the box element to the new window height
       const main = document.getElementById('main');
-      main.style.height = window.innerHeight + 'px';
+      main.style.height = window.innerHeight - 1 + 'px';
     });
   })
 
