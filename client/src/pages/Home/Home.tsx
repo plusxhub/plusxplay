@@ -27,6 +27,12 @@ const Home: Component = () => {
     }
 
     checkAuthenticationStatus()
+
+    window.addEventListener('resize', function() {
+      // Update the height of the box element to the new window height
+      const main = document.getElementById('main');
+      main.style.height = window.innerHeight + 'px';
+    });
   })
 
   createEffect(() => {
@@ -36,6 +42,7 @@ const Home: Component = () => {
   return (
     <div
       class='flex justify-center items-center'
+      id="main"
       style={{ height: window.innerHeight + 'px' }}
     >
       <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] max-h-[85vh] w-[90vw] p-1 relative'>
