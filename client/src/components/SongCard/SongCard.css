@@ -2,3 +2,48 @@
   font-family: 'Russo One', sans-serif;
   font-weight: 100;
 }
+
+
+.empty-box {
+  width: min(35vh, 35vw); /* set the width to the minimum of 35vh and 35vw */
+  height: min(35vh, 35vw); /* set the height to the minimum of 35vh and 35vw */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+  font-family: 'Russo One', sans-serif;
+  padding: 0.75rem;
+}
+
+.song-box {
+  width: min(35vh, 35vw); /* set the width to the minimum of 35vh and 35vw */
+  height: min(35vh, 35vw); /* set the height to the minimum of 35vh and 35vw */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #333333;
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+  padding: 1rem;
+}
+
+
+.song-box-image {
+  width: 50%; /* set the width of the image to 80% of the container */
+  height: auto; /* let the height of the image scale proportionally */
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.song-box-text {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #ffffff;
+  align-self:flex-start;
+}
