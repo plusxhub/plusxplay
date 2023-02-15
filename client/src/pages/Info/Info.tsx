@@ -17,6 +17,7 @@ const Info: Component = () => {
     <div
       class='flex justify-center items-center'
       id="main"
+
       style={{ height: window.innerHeight + 'px' }}
     >
       <div class='flex flex-col bg-white rounded-xl justify-center min-h-[85vh] w-[90vw] p-8 relative'>

@@ -41,7 +41,7 @@ const Home: Component = () => {
 
   return (
     <div
-      class='flex justify-center items-center'
+      class='flex justify-center items-center overflow-y-hidden'
       id="main"
       style={{ height: window.innerHeight + 'px' }}
     >
