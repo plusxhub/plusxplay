@@ -311,8 +311,6 @@ func SetSpotifyPlaylistCoverImage(name, imageUrl, accessToken string) error {
 		return err
 	}
 
-  return err
-
 	buf := new(bytes.Buffer)
 
 	// Encode the image to the buffer in your desired format

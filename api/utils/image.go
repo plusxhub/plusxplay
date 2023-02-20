@@ -93,12 +93,12 @@ func GetCoverImage(name, url string) (image.Image, error) {
 	}
 
 	face := truetype.NewFace(font, &truetype.Options{
-		Size: 40,
+		Size: 50,
 	})
 	baseCtx.SetFontFace(face)
 
 	textX := base.Bounds().Size().X / 2
-	textY := 360
+	textY := 366
 
 	baseCtx.SetRGB(1, 1, 1) // Set the text color to white
 	baseCtx.DrawStringAnchored(strings.ToUpper(name), float64(textX), float64(textY), 0.5, 0.5)
