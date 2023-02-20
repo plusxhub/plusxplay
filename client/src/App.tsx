@@ -9,7 +9,7 @@ import Submitted from './pages/Submit/Submitted'
 
 const App: Component = () => {
   return (
-    <div class='bggradient m-0'>
+    <div class='bggradient'>
         <Routes>
           <Route path='*' element={<NotFound />} />
           <Route path='/' element={<Home />} />

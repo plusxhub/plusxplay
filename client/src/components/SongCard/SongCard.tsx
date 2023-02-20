@@ -40,7 +40,7 @@ const SongCard: Component<SongProps> = ({ song, idx }) => {
             {
               song.artists.map((artist, index) => (
                 <a href={`https://open.spotify.com/artist/${artist.id}`} class="font-[Urbanist] font-medium">
-                  <p class='text-gray-400 text-sm font-semibold'>
+                  <p class='text-gray-400 text-sm font-semibold whitespace-nowrap'>
                     {artist.name}{index !== song.artists.length - 1 ? ',' : ''}&nbsp
                   </p>
                 </a>

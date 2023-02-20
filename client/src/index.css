@@ -5,6 +5,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+}
+
 .bggradient {
   background: linear-gradient(270deg, #ead661, #ff8208);
   background-size: 400% 400%;
