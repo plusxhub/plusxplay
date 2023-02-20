@@ -119,7 +119,7 @@ func (s *Server) PrepareOauth2() {
 		RedirectURL:  models.Config.Spotify.RedirectURI,
 		ClientID:     models.Config.Spotify.ClientID,
 		ClientSecret: models.Config.Spotify.ClientSecret,
-		Scopes:       []string{"user-read-private", "playlist-modify-public"},
+		Scopes:       []string{"user-read-private", "playlist-modify-public", "ugc-image-upload"},
 		Endpoint:     spotifyOauth.Endpoint,
 	}
 }

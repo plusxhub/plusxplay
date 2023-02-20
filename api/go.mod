@@ -4,11 +4,14 @@ go 1.19
 
 require (
 	github.com/VojtechVitek/rerun v0.0.3
+	github.com/disintegration/imaging v1.6.2
+	github.com/fogleman/gg v1.3.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httplog v0.2.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.2
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/lib/pq v1.10.2
 	github.com/rs/zerolog v1.27.0
@@ -116,12 +119,13 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/mod v0.5.0 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5 // indirect
+	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

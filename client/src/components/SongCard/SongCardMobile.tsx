@@ -34,7 +34,7 @@ const SongCardMobile: Component<SongProps> = ({ song, idx }) => {
       }
     >
 
-      <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full my-1 bg-gray-800'>
+      <div class='flex items-center p-2 rounded-lg shadow-md lg:hidden w-full my-1 bg-[#272a2e]'>
         <div class='flex justify-center items-center relative w-full'>
           <a href={`https://open.spotify.com/track/${song.id}`} target="_blank">
             <img src={whiteSpotify} class="absolute top-2 right-2 w-5" />

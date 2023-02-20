@@ -10,7 +10,7 @@ import (
 // Function to handle routes
 func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 
-  plusxplayRouter := chi.NewRouter()
+	plusxplayRouter := chi.NewRouter()
 	plusxplayRouter.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("PlusXPlay API!"))
 	})
@@ -39,6 +39,7 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		handlers.IsAuthenticatedHandler(s.Queries),
 	)
 
+	// TODO: Maybe could add a middleware to check if admin or not
 	adminRouter := chi.NewRouter()
 
 	adminRouter.Get(
@@ -55,12 +56,16 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 		),
 	)
 
-
 	adminRouter.Post(
 		"/set-playlist",
 		handlers.SelectWinnerHandler(
 			s.Queries,
 		),
+	)
+
+	adminRouter.Get(
+		"/current-winner",
+		handlers.GetCurrentWinnerHandler(),
 	)
 
 	spotifyRouter := chi.NewRouter()
@@ -88,5 +93,5 @@ func (s *Server) HandleRoutes(mainRouter *chi.Mux) {
 	plusxplayRouter.Mount("/admin", adminRouter)
 	plusxplayRouter.Mount("/spotify", spotifyRouter)
 
-  mainRouter.Mount("/plusxplay", plusxplayRouter)
+	mainRouter.Mount("/plusxplay", plusxplayRouter)
 }

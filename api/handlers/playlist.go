@@ -5,9 +5,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	db "github.com/milindmadhukar/plusxplay/db/sqlc"
+	"github.com/milindmadhukar/plusxplay/models"
 	"github.com/milindmadhukar/plusxplay/utils"
-  	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/log"
 )
+
+var currentWinner *db.GetRandomPlaylistRow
 
 func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +35,7 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = "Error getting spotify token"
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -47,7 +50,7 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 		playlist, err := queries.GetPlaylist(r.Context(), userSpotifyID)
 		if err != nil {
 			resp["error"] = err.Error()
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -58,12 +61,10 @@ func GetUserPlaylistHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = err.Error()
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
-
-
 
 		utils.JSON(w, http.StatusOK, tracks)
 	}
@@ -97,12 +98,15 @@ func SelectRandomUserHandler(queries *db.Queries) http.HandlerFunc {
 		playlist, err := queries.GetRandomPlaylist(r.Context())
 		if err != nil {
 			resp["error"] = err.Error()
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
 
+		currentWinner = &playlist
+
 		utils.JSON(w, http.StatusOK, playlist)
+		return
 	}
 } // This just selects a user to redo.
 
@@ -131,27 +135,27 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 			return
 		}
 
-		winner := r.URL.Query().Get("winner")
+		winner := currentWinner
 
-		if winner == "" {
-			resp["error"] = "Pass a winner ID"
+		if winner == nil {
+			resp["error"] = "No winner chosen yet"
 			utils.JSON(w, http.StatusBadRequest, resp)
 			return
 		}
 
-		token, err := utils.GetOrUpdateSpotifyToken(spotifyId, queries, r.Context(), w)
+		token, err := utils.GetOrUpdateSpotifyToken(models.Config.API.AdminIDs[0], queries, r.Context(), w)
 
 		if err != nil {
 			resp["error"] = "Error getting spotify token"
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
 
-		playlist, err := queries.GetPlaylist(r.Context(), winner)
+		playlist, err := queries.GetPlaylist(r.Context(), winner.SpotifyID)
 		if err != nil {
 			resp["error"] = err.Error()
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
@@ -162,14 +166,35 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 
 		if err != nil {
 			resp["error"] = err.Error()
-      log.Error().Msg(err.Error())
+			log.Error().Msg(err.Error())
 			utils.JSON(w, http.StatusInternalServerError, resp)
 			return
 		}
 
 		resp["msg"] = "Playlist has been set successfully."
 
-		utils.JSON(w, http.StatusOK, resp)
+		err = utils.SetSpotifyPlaylistCoverImage(currentWinner.DisplayName, currentWinner.ImageUrl.String, token.AccessToken)
 
+    if err != nil {
+      resp["error"] = err.Error()
+    }
+
+		utils.JSON(w, http.StatusOK, resp)
 	}
-} 
+}
+
+func GetCurrentWinnerHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var resp map[string]interface{} = make(map[string]interface{})
+
+		if currentWinner != nil {
+			utils.JSON(w, http.StatusOK, *currentWinner)
+			return
+		} else {
+			resp["winner"] = nil
+		}
+
+		utils.JSON(w, http.StatusOK, resp)
+		return
+	}
+}

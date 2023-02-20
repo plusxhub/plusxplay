@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -50,13 +53,18 @@ func ExecuteSpotifyRequest(endpoint, httpMethod string, body *[]byte, access_tok
 		log.Warn().Msg(err.Error())
 	}
 	bodyString := string(bodyBytes)
-	log.Info().Msg("Response from Spotify: " + bodyString)
+	log.Info().Msg("Code: " + strconv.Itoa(spotifyResp.StatusCode) + ",  from Spotify: " + bodyString)
+
+	if spotifyResp.StatusCode >= 400 {
+		return errors.New("Status Code: " + strconv.Itoa(spotifyResp.StatusCode) + ", " + bodyString)
+	}
 
 	spotifyResp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-
-	if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
-		//TODO: Use the error model to send the required error.
-		return errors.New("No valid results found.")
+	if resp != nil {
+		if err := json.NewDecoder(spotifyResp.Body).Decode(resp); err != nil {
+			//TODO: Use the error model to send the required error.
+			return errors.New("No valid results found.")
+		}
 	}
 
 	return nil
@@ -96,15 +104,13 @@ func RefreshSpotifyToken(refresh_token string) (*db.CreateOrUpdateSpotifyTokensP
 		return nil, err
 	}
 
-  fmt.Println(spotifyRespBody.AccessToken == "", spotifyRespBody.RefreshToken == "", spotifyRespBody.TokenType == "")
-
 	if spotifyRespBody.AccessToken == "" || spotifyRespBody.TokenType == "" {
 		return nil, errors.New("Access Tokens/ Token Type was not recieved from Spotify.")
 	}
-  
-  if spotifyRespBody.RefreshToken == "" {
-    spotifyRespBody.RefreshToken = refresh_token
-  }
+
+	if spotifyRespBody.RefreshToken == "" {
+		spotifyRespBody.RefreshToken = refresh_token
+	}
 
 	return &db.CreateOrUpdateSpotifyTokensParams{
 		CreatedAt:    time.Now().UTC(),
@@ -293,6 +299,57 @@ func clearPlaylistSongs(accessToken string) error {
 
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// TODO: Make an endpoint to upload custom image too from frontend.
+func SetSpotifyPlaylistCoverImage(name, imageUrl, accessToken string) error {
+	img, err := GetCoverImage(name, imageUrl)
+	if err != nil {
+		return err
+	}
+
+  return err
+
+	buf := new(bytes.Buffer)
+
+	// Encode the image to the buffer in your desired format
+	err = jpeg.Encode(buf, img, nil) // replace 'jpeg' with your desired image format
+	if err != nil {
+		return nil
+	}
+
+	// Convert the buffer to a base64-encoded string
+	base64Image := base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	// Create HTTP request
+	url := "https://api.spotify.com/v1/playlists/" + models.Config.Spotify.TargetPlaylist + "/images"
+	requestBody := strings.NewReader(base64Image)
+
+	req, err := http.NewRequest("PUT", url, requestBody)
+	if err != nil {
+		return err
+	}
+
+	// Set authorization header
+	bearerToken := "Bearer " + accessToken
+	req.Header.Set("Authorization", bearerToken)
+
+	// Set content type header
+	req.Header.Set("Content-Type", "image/png")
+
+	// Send HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check response status code for success
+	if resp.StatusCode != http.StatusAccepted {
+		return errors.New("Failed to upload image " + resp.Status)
 	}
 
 	return nil

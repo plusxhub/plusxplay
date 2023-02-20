@@ -30,7 +30,7 @@ const SongCard: Component<SongProps> = ({ song, idx }) => {
           </div>
         }
       >
-        <div class='song-box relative bg-gray-800'>
+        <div class='song-box relative bg-[#272a2e]'>
           <a href={`https://open.spotify.com/track/${song.id}`} target="_blank">
             <img src={whiteSpotify} class="absolute top-3 right-3 w-6" />
           </a>
