@@ -1,6 +1,7 @@
 import { Route, Routes } from 'solid-app-router'
 import { Component } from 'solid-js'
 import Admin from './pages/Admin/Admin'
+import Winner from './pages/Winner'
 import Home from './pages/Home/Home'
 import Info from './pages/Info/Info'
 import NotFound from './pages/NotFoundPage'
@@ -17,6 +18,7 @@ const App: Component = () => {
           <Route path='/submitted' element={<Submitted />} />
           <Route path='/info' element={<Info />} />
           <Route path='/admin' element={<Admin />} />
+          <Route path='/winner' element={<Winner />} />
         </Routes>
     </div>
   )

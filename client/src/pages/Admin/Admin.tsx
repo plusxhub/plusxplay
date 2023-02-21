@@ -9,39 +9,14 @@ import API_URL from '../../utils/api'
 import { Winner } from '../../types/Winner'
 import { Playlist } from '../../types/Playlist'
 import { User } from '../../types/User'
+import {
+  currentWinner,
+  getWinnerFromData,
+  setCurrentWinner,
+} from '../../utils/winner'
 
 const Admin: Component = () => {
-  const [currentWinner, setCurrentWinner] = createSignal<Winner>(null)
-
-  const getWinnerFromData = (data: any) => {
-    const playlist: Playlist = {
-      Choice1: data.choice1 as string,
-      Choice2: data.choice2 as string,
-      Choice3: data.choice3 as string,
-      Choice4: data.choice4 as string,
-      Choice5: data.choice5 as string,
-      Choice6: data.choice6 as string,
-      Choice7: data.choice7 as string,
-      Choice8: data.choice8 as string,
-      Choice9: data.choice9 as string,
-      Choice10: data.choice10 as string,
-      UpdatedAt: data.updatedAt as Date,
-    }
-
-    const user: User = {
-      SpotifyID: data.spotifyUserID,
-      DisplayName: data.displayName,
-      ProfileImageUrl: data.imageUrl.String || '',
-      // ProfileImageUrl: "hi",
-    }
-
-    const winner: Winner = {
-      User: user,
-      Playlist: playlist,
-    }
-
-    return winner
-  }
+  const navigate = useNavigate()
 
   onMount(() => {
     if (!isAdmin()) {
@@ -76,12 +51,15 @@ const Admin: Component = () => {
       })
   }
 
+  // TODO: Add a clear winner option
+
   const setWinner = () => {
     axios
       .post(API_URL + '/admin/set-playlist', {}, { withCredentials: true })
       .then(({ data }) => {
-        if (data.msg !== '') {
-          console.log(data.msg)
+        if (data.msg == 'Playlist has been set successfully.') {
+          console.log('Success')
+          navigate('/winner')
         }
       })
       .catch((err) => {
@@ -106,12 +84,20 @@ const Admin: Component = () => {
 
         <Show
           when={currentWinner() !== null}
-          fallback={<div>No winner Selected</div>}
+          fallback={<p class='russo text-4xl mb-4'>No winner selected</p>}
         >
-          CurrentWinner is: {currentWinner().User.DisplayName} The playlist was
-          last updated on {currentWinner().Playlist.UpdatedAt.toString()}
+          <p class='russo text-xl lg:text-3xl'>
+            Current Winner is: {currentWinner().User.DisplayName} The playlist
+            was last updated on{' '}
+            {new Date(
+              currentWinner().Playlist.UpdatedAt.toString()
+            ).toLocaleString() + ' UTC'}
+          </p>
           <Show when={currentWinner().User.ProfileImageUrl !== ''}>
-            <img class='my-2' src={currentWinner().User.ProfileImageUrl} />
+            <img
+              class='my-2 rounded-lg'
+              src={currentWinner().User.ProfileImageUrl}
+            />
           </Show>
         </Show>
 

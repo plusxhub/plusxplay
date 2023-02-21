@@ -15,6 +15,7 @@ import './Home.css'
 import Socials from '../../components/Socials'
 import SearchModal from '../../components/SearchModal/SearchModal'
 import { urlToken } from '../../utils/login'
+import { currentWinner } from '../../utils/winner'
 
 const Home: Component = () => {
   onMount(() => {
@@ -28,11 +29,13 @@ const Home: Component = () => {
 
     checkAuthenticationStatus()
 
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
       // Update the height of the box element to the new window height
-      const main = document.getElementById('main');
-      main.style.height = window.innerHeight + 'px';
-    });
+      const main = document.getElementById('main')
+      if (main != null) {
+        main.style.height = window.innerHeight + 'px'
+      }
+    })
   })
 
   createEffect(() => {
@@ -42,7 +45,7 @@ const Home: Component = () => {
   return (
     <div
       class='flex justify-center items-center overflow-y-hidden'
-      id="main"
+      id='main'
       style={{ height: window.innerHeight + 'px' }}
     >
       <div class='flex flex-col bg-white rounded-xl justify-center items-center min-h-[85vh] max-h-[85vh] w-[90vw] p-1 relative'>
@@ -100,6 +103,11 @@ const Home: Component = () => {
               </a>
             </Show>
           </div>
+        </Show>
+        <Show when={currentWinner() != null}>
+          <a class='text-lg lg:text-2xl russo mt-3 px-4' href='/winner'>
+            <u>Click here to check this week's winner!</u>
+          </a>
         </Show>
       </div>
     </div>

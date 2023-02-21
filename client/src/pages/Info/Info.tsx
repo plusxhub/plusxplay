@@ -7,19 +7,18 @@ import Socials from '../../components/Socials'
 
 const Info: Component = () => {
   onMount(() => {
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
       // Update the height of the box element to the new window height
-      const main = document.getElementById('main');
-      main.style.height = window.innerHeight + 'px';
-    });
+      const main = document.getElementById('main')
+      if (main != null) {
+        main.style.height = window.innerHeight + 'px'
+      }
+    })
   })
   return (
     <div
       class='flex justify-center items-center'
-                  id="main"
-
-            
-      
+      id='main'
       style={{ height: window.innerHeight + 'px' }}
     >
       <div class='flex flex-col bg-white rounded-xl justify-center min-h-[85vh] w-[90vw] p-8 relative'>
