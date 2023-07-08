@@ -87,8 +87,10 @@ const Admin: Component = () => {
           fallback={<p class='russo text-4xl mb-4'>No winner selected</p>}
         >
           <p class='russo text-xl lg:text-3xl'>
-            Current Winner is: {currentWinner().User.DisplayName} The playlist
-            was last updated on{' '}
+            Current Winner is: {currentWinner().User.DisplayName}.
+          </p>
+          <p class='russo text-md lg:text-xl'>
+            The playlist was last updated on{' '}
             {new Date(
               currentWinner().Playlist.UpdatedAt.toString()
             ).toLocaleString() + ' UTC'}

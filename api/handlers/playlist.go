@@ -173,7 +173,7 @@ func SelectWinnerHandler(queries *db.Queries) http.HandlerFunc {
 
 		resp["msg"] = "Playlist has been set successfully."
 
-		err = utils.SetSpotifyPlaylistCoverImage(currentWinner.DisplayName, currentWinner.ImageUrl.String, token.AccessToken)
+		err =  utils.SetSpotifyPlaylistCoverImage(currentWinner.DisplayName, currentWinner.ImageUrl.String, token.AccessToken)
 
     if err != nil {
       resp["error"] = err.Error()

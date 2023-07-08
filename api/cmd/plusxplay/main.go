@@ -1,8 +1,13 @@
 package main
 
-import "github.com/milindmadhukar/plusxplay/server"
+import (
+	"fmt"
+
+	"github.com/milindmadhukar/plusxplay/server"
+)
 
 func main() {
+  fmt.Println("Starting...")
 	s := server.New()
 	s.RunServer()
 }

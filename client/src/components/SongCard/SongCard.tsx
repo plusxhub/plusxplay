@@ -34,15 +34,15 @@ const SongCard: Component<SongProps> = ({ song, idx }) => {
           <a href={`https://open.spotify.com/track/${song.id}`} target="_blank">
             <img src={whiteSpotify} class="absolute top-3 right-3 w-6" />
           </a>
-          <img class="song-box-image " src={song.image} />
+          <img class="song-box-image" src={song.image} />
           <a href={`https://open.spotify.com/track/${song.id}`} class="song-box-text hover:underline" target="_blank">{truncateString(song.name, 25)}</a>
-          <span class="flex self-start">
+          <span>
             {
               song.artists.map((artist, index) => (
                 <a href={`https://open.spotify.com/artist/${artist.id}`} class="font-[Urbanist] font-medium">
-                  <p class='text-gray-400 text-sm font-semibold whitespace-nowrap'>
+                  <span class='text-gray-400 text-sm font-semibold overflow-ellipsis'>
                     {artist.name}{index !== song.artists.length - 1 ? ',' : ''}&nbsp
-                  </p>
+                  </span>
                 </a>
               ))
             }

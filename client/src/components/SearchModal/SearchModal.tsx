@@ -44,8 +44,8 @@ const SearchModal: Component = () => {
       >
         <div class='fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-[5px] transition-opacity'></div>
         <div class='fixed inset-0 z-10 overflow-y-auto'>
-          <div class='flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'>
-            <div class='relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg'>
+          <div class='flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'> {/* HACK: IDK why this works */}
+            <div class='relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-2 sm:max-w-lg'>
               <a class='absolute top-3 right-3 scale-150' onClick={closeModal}>
                 <svg
                   class='svg-icon'
@@ -64,6 +64,7 @@ const SearchModal: Component = () => {
                   id='searchInput'
                   class='w-full rounded-md bg-base py-3 pl-10 outline-none mb-2'
                   placeholder='Song Name, Ex: High On Life'
+                  autocomplete='false'
                   onInput={(e) => setSearchTerm((e.target as any).value)} // HACK: Change any to suitable datatype
                 />
               </div>
