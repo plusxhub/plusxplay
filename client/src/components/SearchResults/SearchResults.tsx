@@ -44,7 +44,7 @@ const SearchResult: Component<SearchResultProps> = ({ song }) => {
         <img
           src={song.image}
           alt={song.name}
-          class='w-12 h-12 mr-2 object-contain'
+          class='w-12 h-12 mr-2'
         />
       </div>
       <div class=''>
